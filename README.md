@@ -21,16 +21,18 @@ Luís Filipe Ventura Somavie - 20252603
 
 Marlinda da Conceição Prade Congo - 20241718
 
-**Link para Repositório no GitHub**
+### -
 
-https://github.com/paimjo/UniHub.git
+- **Link para Repositório no GitHub**
 
-**Link para Mockups no Figma**
+  https://github.com/paimjo/UniHub.git
 
-**Link do Video Promocional**
+- **Link para Mockups no Figma**
+
+- **Link do Video Promocional**
 
 
-**Link para aceder ao Figma Jam**
+- **Link para aceder ao Figma Jam**
 
 https://www.figma.com/board/2PKnXmmXgQgUmv90HK0IuH/Sem-t%C3%ADtulo?node-id=6-87&t=lMLfG78KkGAqLhfg-1
 
