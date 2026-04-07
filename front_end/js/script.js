@@ -1,22 +1,24 @@
-const wrapper = document.querySelector('.wrapper');
+const janelaLogin = document.querySelector('.janela-login');
+const botaoLoginConta = document.querySelector('.botaoLoginConta');
+const botaoFechar = document.querySelector('.icone-fechar');
 const registerLink = document.querySelector('.register-link');
 const loginLink = document.querySelector('.login-link');
-const botaoLoginConta = document.querySelector('.botaoLoginConta');
-const botaoFechar = document.querySelector('.icon-close');
 
 botaoLoginConta.onclick = () => {
-    wrapper.classList.add('active-popup');
-}
+  janelaLogin.classList.add('active-popup');
+};
 
 botaoFechar.onclick = () => {
-    wrapper.classList.remove('active-popup');
-    wrapper.classList.remove('active');
-}
+  janelaLogin.classList.remove('active-popup');
+  janelaLogin.classList.remove('active');
+};
 
-registerLink.onclick = () => {
-    wrapper.classList.add('active');
-}
+if (registerLink) registerLink.onclick = (e) => {
+  e.preventDefault();
+  janelaLogin.classList.add('active');
+};
 
-loginLink.onclick = () => {
-    wrapper.classList.remove('active');
-}
+if (loginLink) loginLink.onclick = (e) => {
+  e.preventDefault();
+  janelaLogin.classList.remove('active');
+};

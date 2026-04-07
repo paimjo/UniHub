@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro de Estudante – Etapa 3 | UniHub</title>
+  <link rel="stylesheet" href="../../css/style.css" />
+</head>
+
+<body>
+  <section class="fundo-registro">
+    <div class="caixa-registro">
+      <img src="../../imagens/unihub-logo.jpg" alt="Logo UniHub" class="registro-logo">
+
+      <div class="form-etapa etapa-3 ativa">
+        <h2>Informações Académicas</h2>
+        <p style="color:#555;font-size:14px;margin-bottom:15px;">
+          Conte‑nos um pouco sobre a sua formação.
+        </p>
+
+        <form action="#" class="form-estudante-academica">
+          <div class="caixa-input">
+            <input type="text" required>
+            <label>Instituição de Ensino</label>
+          </div>
+
+          <div class="caixa-input">
+            <input type="text" required>
+            <label>Curso</label>
+          </div>
+
+          <div class="caixa-input">
+            <label style="position:static;transform:none;color:#333;font-size:14px;">
+              Já concluiu a licenciatura?
+            </label>
+            <div style="display:flex;justify-content:center;gap:30px;margin-top:5px;">
+              <label style="color:#333;font-size:15px;">
+                <input type="radio" name="concluido" value="sim"> Sim
+              </label>
+              <label style="color:#333;font-size:15px;">
+                <input type="radio" name="concluido" value="nao" id="opcao-nao"> Não
+              </label>
+            </div>
+          </div>
+
+          <div class="caixa-input" id="campo-data-prevista" style="display:none;">
+            <input type="month" name="data-prevista">
+            <label>Data Prevista de Conclusão</label>
+          </div>
+
+          <button type="submit" class="btn finalizar">Concluir Registro</button>
+          <div class="voltar-link">
+            <p><a href="registro-estudante.html">⟵ Voltar à etapa anterior</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="rodape">
+    <p>Copyright © 2026 UniHub. Todos os direitos reservados.</p>
+  </footer>
+
+  <script>
+    const opcaoNao = document.getElementById('opcao-nao');
+    const campoData = document.getElementById('campo-data-prevista');
+    const radios = document.querySelectorAll('input[name="concluido"]');
+
+    radios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (opcaoNao.checked) {
+          campoData.style.display = 'block';
+        } else {
+          campoData.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
