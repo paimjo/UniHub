@@ -96,4 +96,3 @@ Desenvolver uma plataforma web que centralize oportunidades de voluntariado acad
 - Criar um histórico de experiências e competências;  
 - Implementar certificação digital de participação;  
 - Contribuir para a diferenciação no currículo académico e profissional.
-
