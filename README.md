@@ -98,7 +98,7 @@ Desenvolver uma plataforma web que centralize oportunidades de voluntariado acad
 - Contribuir para a diferenciação no currículo académico e profissional.
  
   ---
- #### Links 
+ ### Links 
  
 ## Fase 2 – Ferramentas Utilizadas no Projeto
 
