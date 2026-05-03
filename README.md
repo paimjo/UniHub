@@ -96,3 +96,18 @@ Desenvolver uma plataforma web que centralize oportunidades de voluntariado acad
 - Criar um histórico de experiências e competências;  
 - Implementar certificação digital de participação;  
 - Contribuir para a diferenciação no currículo académico e profissional.
+ 
+  ---
+ #### Links 
+ 
+## Fase 2 – Ferramentas Utilizadas no Projeto
+
+Na Fase 2 do projeto, foram utilizadas ferramentas digitais essenciais para o desenvolvimento, organização e gestão do trabalho da equipa.
+
+### Design e Prototipagem
+- **Figma:**  
+  https://www.figma.com/design/Jmp8xp0IQlaNuMybhtmlaF/Sem-t%C3%ADtulo?node-id=1-7&t=kdc1MuSzgAuRrAxK-0
+
+### Gestão de Projeto e Organização de Tarefas
+- **ClickUp:**  
+  https://app.clickup.com/90151781409/v/l/li/901522152419
