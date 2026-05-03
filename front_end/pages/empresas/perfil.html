@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniHub | Perfil Empresa</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+  <style>
+    body { background: #f4f6fb; }
+    .perfil-wrapper { max-width: 700px; margin: 40px auto; padding: 0 20px; }
+    .card-perfil { background: #fff; border-radius: 16px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); overflow: hidden; }
+    .perfil-capa { height: 120px; background: linear-gradient(135deg, #2563eb, #60a5fa); }
+    .perfil-info { padding: 0 28px 28px; }
+    .perfil-avatar { width: 80px; height: 80px; border-radius: 50%; background: #e8f0fe; border: 4px solid #fff; margin-top: -40px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #2563eb; }
+    .perfil-nome { font-size: 22px; font-weight: 700; color: #1a1a2e; margin: 12px 0 4px; }
+    .perfil-sub { font-size: 14px; color: #888; margin-bottom: 20px; }
+    .perfil-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+    .campo { display: flex; flex-direction: column; gap: 4px; }
+    .campo label { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; }
+    .campo p { font-size: 14px; color: #333; font-weight: 500; }
+    .campo input, .campo textarea { padding: 10px 14px; border-radius: 8px; border: 1.5px solid #eee; font-size: 14px; outline: none; font-family: inherit; transition: border 0.2s; }
+    .campo input:focus, .campo textarea:focus { border-color: #2563eb; }
+    .campo-full { grid-column: 1 / -1; }
+    .perfil-acoes { display: flex; gap: 12px; margin-top: 24px; }
+    .btn-editar { flex: 1; padding: 11px; border-radius: 10px; background: #2563eb; color: #fff; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-editar:hover { background: #1e4db7; }
+    .btn-cancelar { flex: 1; padding: 11px; border-radius: 10px; background: #f4f6fb; color: #555; border: 1.5px solid #eee; font-size: 14px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header class="header-dashboard">
+    <a href="home-empresa.html" class="logo"><img src="../../imagens/unihub-logo.jpg" alt="UniHub Logo"></a>
+    <div class="barra-pesquisa"><input type="text" placeholder="Pesquisar candidatos..."><i class="bx bx-search"></i></div>
+    <nav class="menu-dashboard">
+      <a href="#">Empregabilidade</a>
+      <a href="#">Estágio</a>
+      <a href="candidatos.html">Candidaturas</a>
+    </nav>
+    <div class="icones-dashboard">
+      <a href="perfil-empresa.html"><i class="bx bx-user"></i></a>
+      <a href="chat.html"><i class="bx bx-message"></i></a>
+      <a href="notificacoes.html"><i class="bxf bx-bell"></i></a>
+      <a href="publicar-vaga.html"><i class="bx bx-plus"></i></a>
+    </div>
+  </header>
+
+  <div class="perfil-wrapper">
+    <div class="card-perfil">
+      <div class="perfil-capa"></div>
+      <div class="perfil-info">
+        <div class="perfil-avatar"><i class="bx bx-building"></i></div>
+        <div class="perfil-nome" id="p-nome">A carregar...</div>
+        <div class="perfil-sub" id="p-email"></div>
+
+        <!-- VER PERFIL -->
+        <div id="ver-perfil">
+          <div class="perfil-campos">
+            <div class="campo"><label>NIF</label><p id="p-nif">—</p></div>
+            <div class="campo"><label>Contacto</label><p id="p-contacto">—</p></div>
+            <div class="campo"><label>País</label><p id="p-pais">—</p></div>
+            <div class="campo"><label>Código Postal</label><p id="p-codigo-postal">—</p></div>
+            <div class="campo campo-full"><label>Morada</label><p id="p-morada">—</p></div>
+            <div class="campo campo-full"><label>Descrição</label><p id="p-descricao">—</p></div>
+          </div>
+          <div class="perfil-acoes">
+            <button class="btn-editar" onclick="mostrarEdicao()"><i class="bx bx-edit"></i> Editar Perfil</button>
+          </div>
+        </div>
+
+        <!-- EDITAR PERFIL -->
+        <div id="editar-perfil" style="display:none">
+          <div class="perfil-campos">
+            <div class="campo"><label>NIF</label><input id="e-nif" type="text"></div>
+            <div class="campo"><label>Contacto</label><input id="e-contacto" type="text"></div>
+            <div class="campo"><label>País</label><input id="e-pais" type="text"></div>
+            <div class="campo"><label>Código Postal</label><input id="e-codigo-postal" type="text"></div>
+            <div class="campo campo-full"><label>Morada</label><input id="e-morada" type="text"></div>
+            <div class="campo campo-full"><label>Descrição</label><textarea id="e-descricao" rows="3"></textarea></div>
+          </div>
+          <div class="perfil-acoes">
+            <button class="btn-editar" onclick="guardar()"><i class="bx bx-check"></i> Guardar</button>
+            <button class="btn-cancelar" onclick="cancelar()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ 
+
+  <script>
+    const BASE = 'http://localhost:3000/api';
+    const token = localStorage.getItem('token');
+    let perfilAtual = {};
+
+    async function carregar() {
+      const res = await fetch(`${BASE}/empresa`, { headers: { Authorization: 'Bearer ' + token } });
+      const p = await res.json();
+      perfilAtual = p;
+      document.getElementById('p-nome').textContent = p.nome_empresa || p.nome || '—';
+      document.getElementById('p-email').textContent = p.email || '';
+      document.getElementById('p-nif').textContent = p.nif || '—';
+      document.getElementById('p-contacto').textContent = p.contacto || '—';
+      document.getElementById('p-pais').textContent = p.pais || '—';
+      document.getElementById('p-codigo-postal').textContent = p.codigo_postal || '—';
+      document.getElementById('p-morada').textContent = p.morada || '—';
+      document.getElementById('p-descricao').textContent = p.descricao || '—';
+    }
+
+    function mostrarEdicao() {
+      document.getElementById('e-nif').value = perfilAtual.nif || '';
+      document.getElementById('e-contacto').value = perfilAtual.contacto || '';
+      document.getElementById('e-pais').value = perfilAtual.pais || '';
+      document.getElementById('e-codigo-postal').value = perfilAtual.codigo_postal || '';
+      document.getElementById('e-morada').value = perfilAtual.morada || '';
+      document.getElementById('e-descricao').value = perfilAtual.descricao || '';
+      document.getElementById('ver-perfil').style.display = 'none';
+      document.getElementById('editar-perfil').style.display = 'block';
+    }
+
+    function cancelar() {
+      document.getElementById('ver-perfil').style.display = 'block';
+      document.getElementById('editar-perfil').style.display = 'none';
+    }
+
+    async function guardar() {
+      await fetch(`${BASE}/empresa`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({
+          nif: document.getElementById('e-nif').value,
+          contacto: document.getElementById('e-contacto').value,
+          pais: document.getElementById('e-pais').value,
+          codigo_postal: document.getElementById('e-codigo-postal').value,
+          morada: document.getElementById('e-morada').value,
+          descricao: document.getElementById('e-descricao').value,
+        })
+      });
+      await carregar();
+      cancelar();
+    }
+
+    carregar();
+  </script>
+</body>
+</html>

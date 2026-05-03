@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniHub | Empregabilidade</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+  <style>
+    body { background: #f4f6fb; }
+    .vagas-layout { display: grid; grid-template-columns: 380px 1fr; gap: 0; height: calc(100vh - 80px); }
+    .vagas-lista { background: #fff; border-right: 1px solid #eee; display: flex; flex-direction: column; overflow: hidden; }
+    .vagas-header { padding: 20px; border-bottom: 1px solid #eee; }
+    .vagas-header h2 { font-size: 18px; font-weight: 700; color: #1a1a2e; margin-bottom: 12px; }
+    .pesquisa-vagas { position: relative; margin-bottom: 10px; }
+    .pesquisa-vagas input { width: 100%; padding: 10px 14px 10px 38px; border-radius: 10px; border: 1.5px solid #eee; font-size: 13px; outline: none; background: #f9fafb; box-sizing: border-box; }
+    .pesquisa-vagas input:focus { border-color: #2563eb; }
+    .pesquisa-vagas i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #aaa; }
+    .filtros-avancados { display: flex; gap: 8px; }
+    .filtro-select { flex: 1; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #eee; font-size: 13px; outline: none; background: #f9fafb; color: #555; cursor: pointer; }
+    .filtro-select:focus { border-color: #2563eb; }
+    .lista-scroll { overflow-y: auto; flex: 1; }
+    .vaga-item { padding: 16px 20px; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background 0.2s; border-left: 3px solid transparent; }
+    .vaga-item:hover { background: #f8faff; }
+    .vaga-item.ativo { background: #f0f5ff; border-left-color: #2563eb; }
+    .vaga-empresa-nome { font-size: 12px; color: #2563eb; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+    .vaga-titulo-item { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
+    .vaga-meta-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag-mini { padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #f0f5ff; color: #2563eb; }
+    .tag-mini.verde { background: #f0fdf4; color: #166534; }
+    .loading { text-align: center; padding: 40px; color: #bbb; font-size: 14px; }
+    .vaga-detalhe { overflow-y: auto; padding: 32px; background: #f4f6fb; }
+    .detalhe-vazio { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #ccc; font-size: 15px; gap: 12px; }
+    .detalhe-vazio i { font-size: 48px; }
+    .detalhe-card { background: #fff; border-radius: 20px; padding: 32px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); max-width: 700px; }
+    .detalhe-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+    .detalhe-empresa { font-size: 13px; color: #2563eb; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+    .detalhe-titulo { font-size: 22px; font-weight: 800; color: #1a1a2e; margin-bottom: 10px; }
+    .detalhe-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .tag { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: #f0f5ff; color: #2563eb; display: flex; align-items: center; gap: 4px; }
+    .detalhe-secao { margin-bottom: 20px; }
+    .detalhe-secao h4 { font-size: 13px; font-weight: 700; color: #aaa; text-transform: uppercase; margin-bottom: 8px; }
+    .detalhe-secao p { font-size: 14px; color: #444; line-height: 1.7; }
+    .competencias-lista { display: flex; flex-wrap: wrap; gap: 8px; }
+    .comp-tag { padding: 5px 12px; border-radius: 8px; background: #f8faff; border: 1px solid #e0eaff; font-size: 13px; color: #333; }
+    .btn-candidatar { width: 100%; padding: 14px; border-radius: 12px; background: #2563eb; color: #fff; border: none; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+    .btn-candidatar:hover { background: #1e4db7; transform: translateY(-1px); }
+    .btn-candidatar:disabled { background: #93c5fd; cursor: not-allowed; transform: none; }
+    .btn-favorito { width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid #eee; background: #fff; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; color: #aaa; }
+    .btn-favorito.guardado { color: #2563eb; border-color: #2563eb; background: #eff6ff; }
+    .msg-sucesso { background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 12px 16px; color: #166534; font-weight: 600; font-size: 13px; margin-top: 12px; display: none; }
+  </style>
+</head>
+<body>
+  <header class="header-dashboard">
+    <a href="home-estudante.html" class="logo"><img src="../../imagens/unihub-logo.jpg" alt="UniHub Logo"></a>
+    <div class="barra-pesquisa">
+      <input type="text" id="pesquisa-global" placeholder="Pesquisar vagas, empresas, IRS..." oninput="filtrarLista()">
+      <i class="bx bx-search"></i>
+    </div>
+    <nav class="menu-dashboard">
+      <a href="estagio.html">Estágio</a>
+      <a href="empregabilidade.html">Empregabilidade</a>
+      <a href="voluntariado.html">Voluntariado</a>
+    </nav>
+    <div class="icones-dashboard">
+      <a href="perfil.html"><i class="bx bx-user"></i></a>
+      <a href="chat.html"><i class="bx bx-message"></i></a>
+      <a href="notificacoes.html"><i class="bxf bx-bell"></i></a>
+      <a href="favoritos.html"><i class="bx bx-bookmark"></i></a>
+    </div>
+  </header>
+
+  <div class="vagas-layout">
+    <div class="vagas-lista">
+      <div class="vagas-header">
+        <h2>Empregabilidade</h2>
+        <div class="pesquisa-vagas">
+          <i class="bx bx-search"></i>
+          <input type="text" id="pesquisa-lista" placeholder="Pesquisar..." oninput="filtrarLista()">
+        </div>
+        <div class="filtros-avancados">
+          <select class="filtro-select" id="filtro-regime" onchange="filtrarLista()">
+            <option value="">Regime</option>
+            <option value="PRESENCIAL">Presencial</option>
+            <option value="REMOTO">Remoto</option>
+            <option value="HIBRIDO">Híbrido</option>
+          </select>
+          <select class="filtro-select" id="filtro-cidade" onchange="filtrarLista()">
+            <option value="">Cidade</option>
+          </select>
+        </div>
+      </div>
+      <div class="lista-scroll" id="lista-vagas">
+        <p class="loading">A carregar...</p>
+      </div>
+    </div>
+    <div class="vaga-detalhe" id="vaga-detalhe">
+      <div class="detalhe-vazio">
+        <i class="bx bx-briefcase"></i>
+        <p>Seleciona uma vaga para ver os detalhes</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BASE = 'http://localhost:3000/api';
+    const token = localStorage.getItem('token');
+    let todasVagas = [];
+    let vagaAtivaId = null;
+
+    async function carregar() {
+      const res = await fetch(`${BASE}/vaga`);
+      todasVagas = await res.json();
+      const cidades = [...new Set(todasVagas.filter(v => v.tipo === 'EMPREGO' && v.cidade).map(v => v.cidade))].sort();
+      const sel = document.getElementById('filtro-cidade');
+      cidades.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+      filtrarLista();
+    }
+
+    function renderizarLista(vagas) {
+      const lista = document.getElementById('lista-vagas');
+      if (!vagas.length) { lista.innerHTML = '<p class="loading">Sem vagas encontradas.</p>'; return; }
+      lista.innerHTML = vagas.map(v => `
+        <div class="vaga-item ${v.vaga_id === vagaAtivaId ? 'ativo' : ''}" onclick="verDetalhe(${v.vaga_id})" id="item-${v.vaga_id}">
+          <div class="vaga-empresa-nome">${v.nome_empresa || v.nome_organizacao || 'UniHub'}</div>
+          <div class="vaga-titulo-item">${v.titulo}</div>
+          <div class="vaga-meta-row">
+            ${v.regime ? `<span class="tag-mini">${v.regime}</span>` : ''}
+            ${v.cidade ? `<span class="tag-mini verde"><i class="bx bx-map-pin"></i> ${v.cidade}</span>` : ''}
+          </div>
+        </div>`).join('');
+    }
+
+    function filtrarLista() {
+      const texto = (document.getElementById('pesquisa-lista').value || document.getElementById('pesquisa-global').value).toLowerCase();
+      const regime = document.getElementById('filtro-regime').value;
+      const cidade = document.getElementById('filtro-cidade').value;
+      let resultado = todasVagas.filter(v => v.tipo === 'EMPREGO');
+      if (texto) resultado = resultado.filter(v => v.titulo.toLowerCase().includes(texto) || (v.nome_empresa || '').toLowerCase().includes(texto));
+      if (regime) resultado = resultado.filter(v => v.regime === regime);
+      if (cidade) resultado = resultado.filter(v => v.cidade === cidade);
+      renderizarLista(resultado);
+    }
+
+    async function verDetalhe(id) {
+      vagaAtivaId = id;
+      document.querySelectorAll('.vaga-item').forEach(i => i.classList.remove('ativo'));
+      const item = document.getElementById('item-' + id);
+      if (item) item.classList.add('ativo');
+      const res = await fetch(`${BASE}/vaga/${id}`);
+      const v = await res.json();
+      const empresa = v.nome_empresa || v.nome_organizacao || 'UniHub';
+      document.getElementById('vaga-detalhe').innerHTML = `
+        <div class="detalhe-card">
+          <div class="detalhe-top">
+            <div>
+              <div class="detalhe-empresa">${empresa}</div>
+              <div class="detalhe-titulo">${v.titulo}</div>
+            </div>
+            <button class="btn-favorito" id="btn-fav" onclick="toggleFavorito(${v.vaga_id})"><i class="bx bx-bookmark"></i></button>
+          </div>
+          <div class="detalhe-tags">
+            ${v.regime ? `<span class="tag"><i class="bx bx-desktop"></i>${v.regime}</span>` : ''}
+            ${v.cidade ? `<span class="tag"><i class="bx bx-map-pin"></i>${v.cidade}</span>` : ''}
+            ${v.remuneracao ? `<span class="tag"><i class="bx bx-euro"></i>${v.remuneracao}</span>` : ''}
+            ${v.nivel_exigencia ? `<span class="tag"><i class="bx bx-bar-chart"></i>${v.nivel_exigencia}</span>` : ''}
+          </div>
+          ${v.descricao ? `<div class="detalhe-secao"><h4>Descrição</h4><p>${v.descricao}</p></div>` : ''}
+          ${v.competencias ? `<div class="detalhe-secao"><h4>Competências</h4><div class="competencias-lista">${v.competencias.split(',').map(c => `<span class="comp-tag">${c.trim()}</span>`).join('')}</div></div>` : ''}
+          <button class="btn-candidatar" id="btn-cand" onclick="candidatar(${v.vaga_id})"><i class="bx bx-send"></i> Candidatar-me</button>
+          <div class="msg-sucesso" id="msg-sucesso">✓ Candidatura submetida com sucesso!</div>
+        </div>`;
+    }
+
+    async function candidatar(vagaId) {
+      const btn = document.getElementById('btn-cand');
+      btn.textContent = 'A submeter...';
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${BASE}/candidatura`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify({ vaga_id: vagaId })
+        });
+        const dados = await res.json();
+        if (!res.ok) { alert(dados.erro); btn.textContent = 'Candidatar-me'; btn.disabled = false; return; }
+        document.getElementById('msg-sucesso').style.display = 'block';
+        btn.textContent = '✓ Candidatura enviada';
+      } catch { alert('Erro ao ligar ao servidor.'); btn.textContent = 'Candidatar-me'; btn.disabled = false; }
+    }
+
+    async function toggleFavorito(vagaId) {
+      const btn = document.getElementById('btn-fav');
+      if (btn.classList.contains('guardado')) {
+        await fetch(`${BASE}/favoritos/${vagaId}`, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
+        btn.classList.remove('guardado');
+        btn.innerHTML = '<i class="bx bx-bookmark"></i>';
+      } else {
+        await fetch(`${BASE}/favoritos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify({ vaga_id: vagaId })
+        });
+        btn.classList.add('guardado');
+        btn.innerHTML = '<i class="bx bxs-bookmark"></i>';
+      }
+    }
+
+    carregar();
+  </script>
+</body>
+</html>

@@ -22,3 +22,38 @@ if (loginLink) loginLink.onclick = (e) => {
   e.preventDefault();
   janelaLogin.classList.remove('active');
 };
+
+// ─── LOGIN ────────────────────────────────────────────────────────────────────
+const formularioLogin = document.querySelector('.formulario.login form');
+
+if (formularioLogin) {
+  formularioLogin.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email    = formularioLogin.querySelector('input[type="email"]').value;
+    const password = formularioLogin.querySelector('input[type="password"]').value;
+    const btnLogin = formularioLogin.querySelector('button[type="submit"]');
+
+    btnLogin.textContent = 'A entrar...';
+    btnLogin.disabled = true;
+
+    try {
+      const dados = await apiRequest('/auth/login', 'POST', { email, password });
+
+      setToken(dados.token);
+      setUtilizador(dados.utilizador);
+
+      // O backend devolve "tipo" (não "tipo_utilizador")
+      const tipo = dados.utilizador.tipo;
+      if (tipo === 'ESTUDANTE')        window.location.href = 'estudantes/home-estudante.html';
+      else if (tipo === 'EMPRESA')     window.location.href = 'empresas/home-empresa.html';
+      else if (tipo === 'ORGANIZACAO') window.location.href = 'ongs/home-ong.html';
+      else alert('Tipo de utilizador desconhecido: ' + tipo);
+
+    } catch (err) {
+      alert('Erro: ' + err.message);
+      btnLogin.textContent = 'Login';
+      btnLogin.disabled = false;
+    }
+  });
+}
