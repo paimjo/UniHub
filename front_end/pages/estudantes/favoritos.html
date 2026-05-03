@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniHub | Favoritos</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+  <style>
+    body { background: #f4f6fb; }
+    .pagina-conteudo { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .pagina-titulo { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .pagina-subtitulo { font-size: 14px; color: #888; margin-bottom: 24px; }
+    .filtros-notif { display: flex; gap: 10px; margin-bottom: 28px; }
+    .filtro-btn { padding: 8px 20px; border-radius: 20px; border: 1.5px solid #ddd; background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; color: #555; transition: all 0.2s; }
+    .filtro-btn.ativo, .filtro-btn:hover { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .grid-vagas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .card-vaga { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 10px; transition: all 0.2s; }
+    .card-vaga:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+    .vaga-empresa { font-size: 12px; color: #2563eb; font-weight: 600; text-transform: uppercase; }
+    .vaga-titulo { font-size: 16px; font-weight: 700; color: #1a1a2e; }
+    .vaga-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #f0f5ff; color: #2563eb; }
+    .vaga-acoes { display: flex; gap: 8px; margin-top: 6px; }
+    .btn-remover { flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid #fee2e2; background: #fff; color: #ef4444; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-remover:hover { background: #fee2e2; }
+    .vazio { text-align: center; padding: 60px 0; color: #bbb; font-size: 15px; }
+  </style>
+</head>
+<body>
+  <header class="header-dashboard">
+    <a href="home-estudante.html" class="logo"><img src="../../imagens/unihub-logo.jpg" alt="UniHub Logo"></a>
+    <div class="barra-pesquisa"><input type="text" placeholder="Pesquisar vagas, empresas, IRS..."><i class="bx bx-search"></i></div>
+    <nav class="menu-dashboard"><a href="estagio.html">Estágio</a><a href="homepage.html">Empregabilidade</a><a href="voluntariado.html">Voluntariado</a></nav>
+    <div class="icones-dashboard">
+      <a href="perfil.html"><i class="bx bx-user"></i></a>
+      <a href="chat.html"><i class="bx bx-message"></i></a>
+      <a href="notificacoes.html"><i class="bxf bx-bell"></i></a>
+      <a href="favoritos.html"><i class="bx bx-bookmark"></i></a>
+    </div>
+  </header>
+
+  <div class="pagina-conteudo">
+    <h1 class="pagina-titulo">Favoritos</h1>
+    <p class="pagina-subtitulo">As vagas que guardaste para mais tarde.</p>
+    <div class="filtros-notif">
+      <button class="filtro-btn ativo" onclick="filtrar('', this)">Todas</button>
+      <button class="filtro-btn" onclick="filtrar('ESTAGIO', this)">Estágio</button>
+      <button class="filtro-btn" onclick="filtrar('EMPREGO', this)">Emprego</button>
+      <button class="filtro-btn" onclick="filtrar('VOLUNTARIADO', this)">Voluntariado</button>
+    </div>
+    <div class="grid-vagas" id="grid"></div>
+  </div>
+
+  <footer class="rodape"><p>Copyright © 2026 UniHub. Todos os direitos reservados.</p></footer>
+
+  <script>
+    const BASE = 'http://localhost:3000/api';
+    const token = localStorage.getItem('token');
+
+    async function carregar(tipo = '') {
+      const url = tipo ? `${BASE}/favoritos?tipo=${tipo}` : `${BASE}/favoritos`;
+      const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+      const vagas = await res.json();
+      const grid = document.getElementById('grid');
+      if (!vagas.length) { grid.innerHTML = '<p class="vazio">Sem favoritos guardados.</p>'; return; }
+      grid.innerHTML = vagas.map(v => `
+        <div class="card-vaga" id="card-${v.vaga_id}">
+          <div class="vaga-empresa">${v.nome_empresa || v.nome_organizacao || 'UniHub'}</div>
+          <div class="vaga-titulo">${v.titulo}</div>
+          <div class="vaga-meta">
+            <span class="tag">${v.tipo}</span>
+            <span class="tag">${v.regime || ''}</span>
+            <span class="tag"><i class="bx bx-map-pin"></i> ${v.cidade || ''}</span>
+          </div>
+          <div class="vaga-acoes">
+            <button class="btn-remover" onclick="remover(${v.vaga_id})"><i class="bx bx-trash"></i> Remover</button>
+          </div>
+        </div>`).join('');
+    }
+
+    async function remover(vagaId) {
+      await fetch(`${BASE}/favoritos/${vagaId}`, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
+      document.getElementById('card-' + vagaId).remove();
+    }
+
+    function filtrar(tipo, btn) {
+      document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
+      btn.classList.add('ativo');
+      carregar(tipo);
+    }
+
+    carregar();
+  </script>
+</body>
+</html>

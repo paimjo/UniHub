@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniHub | Candidatos</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+  <style>
+    body { background: #f4f6fb; }
+    .pagina-conteudo { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+    .pagina-titulo { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .pagina-subtitulo { font-size: 14px; color: #888; margin-bottom: 24px; }
+    .select-vaga { width: 100%; max-width: 400px; padding: 11px 16px; border-radius: 10px; border: 1.5px solid #eee; font-size: 14px; outline: none; background: #fff; margin-bottom: 28px; }
+    .select-vaga:focus { border-color: #2563eb; }
+    .candidatos-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .lista-candidatos { display: flex; flex-direction: column; gap: 12px; }
+    .candidato-item { background: #fff; border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: all 0.2s; border: 2px solid transparent; }
+    .candidato-item:hover, .candidato-item.ativo { border-color: #2563eb; }
+    .cand-avatar { width: 44px; height: 44px; border-radius: 50%; background: #e8f0fe; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #2563eb; flex-shrink: 0; }
+    .cand-info strong { font-size: 14px; color: #1a1a2e; }
+    .cand-info span { font-size: 12px; color: #888; display: block; }
+    .estado-badge { margin-left: auto; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .PENDENTE { background: #fef9c3; color: #854d0e; }
+    .ACEITE { background: #dcfce7; color: #166534; }
+    .REJEITADO { background: #fee2e2; color: #991b1b; }
+
+    .detalhe-card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); position: sticky; top: 20px; }
+    .detalhe-vazio { color: #bbb; text-align: center; padding: 40px 0; font-size: 14px; }
+    .detalhe-nome { font-size: 20px; font-weight: 700; color: #1a1a2e; margin: 12px 0 4px; }
+    .detalhe-sub { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .detalhe-campo { margin-bottom: 14px; }
+    .detalhe-campo label { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .detalhe-campo p { font-size: 14px; color: #333; }
+    .acoes-candidato { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-aceitar { flex: 1; padding: 11px; border-radius: 10px; background: #22c55e; color: #fff; border: none; font-weight: 700; cursor: pointer; font-size: 14px; }
+    .btn-aceitar:hover { background: #16a34a; }
+    .btn-rejeitar { flex: 1; padding: 11px; border-radius: 10px; background: #fff; color: #ef4444; border: 1.5px solid #fca5a5; font-weight: 700; cursor: pointer; font-size: 14px; }
+    .btn-rejeitar:hover { background: #fee2e2; }
+  </style>
+</head>
+<body>
+  <header class="header-dashboard">
+    <a href="home-empresa.html" class="logo"><img src="../../imagens/unihub-logo.jpg" alt="UniHub Logo"></a>
+    <div class="barra-pesquisa"><input type="text" placeholder="Pesquisar candidatos..."><i class="bx bx-search"></i></div>
+    <nav class="menu-dashboard">
+      <a href="candidatos.html">Candidaturas</a>
+      <a href="#">Voluntariado</a>
+    </nav>
+
+
+    <div class="icones-dashboard">
+      <a href="perfil.html"><i class="bx bx-user"></i></a>
+      <a href="chat.html"><i class="bx bx-message"></i></a>
+      <a href="notificacoes.html"><i class="bxf bx-bell"></i></a>
+      <a href="publicar-vaga.html"><i class="bx bx-plus"></i></a>
+    </div>
+  </header>
+
+  <div class="pagina-conteudo">
+    <h1 class="pagina-titulo">Candidatos</h1>
+    <p class="pagina-subtitulo">Gere as candidaturas às tuas vagas.</p>
+
+    <select class="select-vaga" id="select-vaga" onchange="carregarCandidatos()">
+      <option value="">Seleciona uma vaga...</option>
+    </select>
+
+    <div class="candidatos-layout">
+      <div class="lista-candidatos" id="lista-candidatos">
+        <p style="color:#bbb;font-size:14px;">Seleciona uma vaga para ver os candidatos.</p>
+      </div>
+      <div class="detalhe-card" id="detalhe">
+        <p class="detalhe-vazio">Seleciona um candidato para ver o perfil.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="rodape"><p>Copyright © 2026 UniHub. Todos os direitos reservados.</p></footer>
+
+  <script>
+    const BASE = 'http://localhost:3000/api';
+    const token = localStorage.getItem('token');
+    let candidatoAtivo = null;
+
+    async function carregarVagas() {
+      const res = await fetch(`${BASE}/vaga/minhas`, { headers: { Authorization: 'Bearer ' + token } });
+      const vagas = await res.json();
+      const sel = document.getElementById('select-vaga');
+      vagas.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.vaga_id;
+        opt.textContent = v.titulo;
+        sel.appendChild(opt);
+      });
+    }
+
+    async function carregarCandidatos() {
+      const vagaId = document.getElementById('select-vaga').value;
+      if (!vagaId) return;
+      const res = await fetch(`${BASE}/candidatura/vaga/${vagaId}`, { headers: { Authorization: 'Bearer ' + token } });
+      const candidatos = await res.json();
+      const lista = document.getElementById('lista-candidatos');
+      if (!candidatos.length) { lista.innerHTML = '<p style="color:#bbb;font-size:14px;">Sem candidatos nesta vaga.</p>'; return; }
+      lista.innerHTML = candidatos.map(c => `
+        <div class="candidato-item" onclick="verDetalhe(${JSON.stringify(c).replace(/"/g,'&quot;')}, this)">
+          <div class="cand-avatar"><i class="bx bx-user"></i></div>
+          <div class="cand-info">
+            <strong>${c.nome}</strong>
+            <span>${c.instituicao_ensino || ''} ${c.curso ? '• ' + c.curso : ''}</span>
+          </div>
+          <span class="estado-badge ${c.estado}">${c.estado}</span>
+        </div>`).join('');
+    }
+
+    function verDetalhe(c, el) {
+      candidatoAtivo = c;
+      document.querySelectorAll('.candidato-item').forEach(i => i.classList.remove('ativo'));
+      el.classList.add('ativo');
+      document.getElementById('detalhe').innerHTML = `
+        <div class="cand-avatar" style="margin:0 auto;width:60px;height:60px;font-size:28px;"><i class="bx bx-user"></i></div>
+        <div class="detalhe-nome">${c.nome}</div>
+        <div class="detalhe-sub">${c.email}</div>
+        <div class="detalhe-campo"><label>Instituição</label><p>${c.instituicao_ensino || '—'}</p></div>
+        <div class="detalhe-campo"><label>Curso</label><p>${c.curso || '—'}</p></div>
+        <div class="detalhe-campo"><label>Descrição</label><p>${c.descricao_perfil || '—'}</p></div>
+        <div class="detalhe-campo"><label>Estado da candidatura</label><p><span class="estado-badge ${c.estado}">${c.estado}</span></p></div>
+        <div class="acoes-candidato">
+          <button class="btn-aceitar" onclick="atualizarEstado(${c.cand_id}, 'ACEITE')">✓ Aceitar</button>
+          <button class="btn-rejeitar" onclick="atualizarEstado(${c.cand_id}, 'REJEITADO')">✕ Rejeitar</button>
+        </div>`;
+    }
+
+    async function atualizarEstado(candId, estado) {
+      await fetch(`${BASE}/candidatura/${candId}/estado`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ estado })
+      });
+      alert(`Candidatura ${estado === 'ACEITE' ? 'aceite' : 'rejeitada'} com sucesso!`);
+      carregarCandidatos();
+      document.getElementById('detalhe').innerHTML = '<p class="detalhe-vazio">Seleciona um candidato para ver o perfil.</p>';
+    }
+
+    carregarVagas();
+  </script>
+</body>
+</html>
