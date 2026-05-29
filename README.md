@@ -1,4 +1,6 @@
 # UniHub
+<img width="297" height="185" alt="Captura de ecrã 2026-05-30 001353" src="https://github.com/user-attachments/assets/6eeb818e-baae-4eea-8ee1-1b447cf4d402" />
+
 
 **Licenciatura em Engenharia Informática**  
 LEIF02 | 25-26  
@@ -96,18 +98,37 @@ Desenvolver uma plataforma web que centralize oportunidades de voluntariado acad
 - Criar um histórico de experiências e competências;  
 - Implementar certificação digital de participação;  
 - Contribuir para a diferenciação no currículo académico e profissional.
+
+ ---
+ ### Conclusão 
  
+O UniHub demonstrou ser uma solução necessária para aproximar estudantes do mercado de trabalho, centralizando oportunidades e simplificando processos. A investigação confirmou lacunas reais na experiência prática dos jovens, e o projeto respondeu a elas com uma plataforma intuitiva, socialmente relevante e orientada ao desenvolvimento profissional. Com o seu modelo progressivo voluntariado, estágio e emprego a UniHub contribui para uma transição mais sólida, inclusiva e eficaz entre a universidade e o mundo profissional. 
+
   ---
  ### Links 
  
-## Fase 2 – Ferramentas Utilizadas no Projeto
+## Ferramentas Utilizadas no Projeto
 
 Na Fase 2 do projeto, foram utilizadas ferramentas digitais essenciais para o desenvolvimento, organização e gestão do trabalho da equipa.
 
 ### Design e Prototipagem
 - **Figma:**  
-  https://www.figma.com/design/Jmp8xp0IQlaNuMybhtmlaF/Sem-t%C3%ADtulo?node-id=1-7&t=kdc1MuSzgAuRrAxK-0
+   https://www.figma.com/design/Jmp8xp0IQlaNuMybhtmlaF/Sem-t%C3%ADtulo?node-id=1-7&t=kdc1MuSzgAuRrAxK-0
 
 ### Gestão de Projeto e Organização de Tarefas
 - **ClickUp:**  
   https://app.clickup.com/90151781409/v/l/li/901522152419
+### Teste de Usabilidade 
+- **Maze**
+  https://t.maze.co/538708551
+### Videos dos testes de usabilidade
+- **You Tube**
+https://www.youtube.com/playlist?list=PLDXcnw9zBsnjF-qS8_u1ta5nlB6s0UBJC
+### Video Promocional da APP
+- **You Tube**
+  https://www.youtube.com/watch?v=hYriIhkzS6o
+
+  ---
+  ### Poster
+  <img width="853" height="1280" alt="image" src="https://github.com/user-attachments/assets/0d15e7cf-a72f-4aca-bb6f-f6691176f704" />
+
