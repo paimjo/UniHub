@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniHub | Admin</title>
+  <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f4f6fb; font-family: 'Poppins', system-ui, sans-serif; min-height: 100vh; }
+
+    .navbar {
+      width: 100% !important; height: 130px !important; background: #ffffff !important;
+      border-bottom: 1px solid #f0f0f0 !important; box-shadow: 0 2px 12px rgba(0,0,0,0.05) !important;
+      display: flex !important; align-items: center !important; justify-content: space-between !important;
+      padding: 0 48px !important; position: fixed !important; top: 0 !important; left: 0 !important; z-index: 1000 !important;
+    }
+    .nav-esquerda { display: flex; align-items: center; gap: 40px; }
+    .nav-logo img { width: 130px; display: block; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links a {
+      display: flex; align-items: center; padding: 10px 20px; border-radius: 12px;
+      color: #444; text-decoration: none; font-size: 15px; font-weight: 500;
+      transition: all 0.18s; white-space: nowrap;
+    }
+    .nav-links a:hover { background: #f0f5ff; color: #2563eb; }
+    .nav-links a.ativo { background: #eff6ff; color: #2563eb; font-weight: 700; }
+    .nav-direita { display: flex; align-items: center; gap: 16px; }
+    .btn-logout {
+      display: flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 20px;
+      border: 1.5px solid #e5e7eb; background: #f8f8f8; color: #444; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.18s;
+    }
+    .btn-logout:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+    .btn-logout i { font-size: 18px; }
+
+    .main { margin-top: 130px; padding: 32px 48px 48px; }
+    .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .main-header h1 { font-size: 22px; font-weight: 800; color: #1a1a2e; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card  { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .stat-icon  { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; }
+    .azul    { background: #eff6ff; color: #2563eb; }
+    .verde   { background: #f0fdf4; color: #16a34a; }
+    .laranja { background: #fff7ed; color: #ea580c; }
+    .roxo    { background: #faf5ff; color: #9333ea; }
+    .stat-valor { font-size: 30px; font-weight: 800; color: #1a1a2e; }
+    .stat-label { font-size: 13px; color: #888; font-weight: 500; }
+    .stat-sub   { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+    .secoes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .secao-card  { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .secao-card.full { grid-column: 1 / -1; }
+    .secao-titulo { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .secao-titulo i { color: #2563eb; }
+
+    .barra-item  { margin-bottom: 14px; }
+    .barra-label { display: flex; justify-content: space-between; font-size: 13px; color: #555; margin-bottom: 5px; }
+    .barra-label span:last-child { font-weight: 700; color: #1a1a2e; }
+    .barra-bg    { height: 8px; background: #f0f0f0; border-radius: 10px; overflow: hidden; }
+    .barra-fill  { height: 100%; border-radius: 10px; transition: width 1s ease; }
+    .barra-fill.azul    { background: #2563eb; }
+    .barra-fill.verde   { background: #16a34a; }
+    .barra-fill.laranja { background: #ea580c; }
+    .barra-fill.amarelo { background: #eab308; }
+    .barra-fill.roxo    { background: #9333ea; }
+
+    .donut-wrapper      { display: flex; align-items: center; gap: 24px; }
+    .donut-container    { position: relative; width: 160px; height: 160px; flex-shrink: 0; }
+    .donut-center-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; pointer-events: none; }
+    .donut-center-label strong { font-size: 24px; font-weight: 800; color: #1a1a2e; display: block; }
+    .donut-center-label span   { font-size: 11px; color: #888; }
+    .donut-legenda { flex: 1; }
+    .legenda-item  { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 13px; }
+    .legenda-dot   { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .legenda-label { flex: 1; color: #555; }
+    .legenda-val   { font-weight: 700; color: #1a1a2e; }
+    .legenda-pct   { font-size: 11px; color: #aaa; margin-left: 4px; }
+
+    .tabela    { width: 100%; border-collapse: collapse; }
+    .tabela th { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; padding: 8px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+    .tabela td { font-size: 13px; color: #333; padding: 12px; border-bottom: 1px solid #f5f5f5; }
+    .tabela tr:last-child td { border-bottom: none; }
+    .tabela tr:hover td { background: #f8faff; }
+    .tipo-badge  { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .ESTUDANTE   { background: #eff6ff; color: #2563eb; }
+    .EMPRESA     { background: #fff7ed; color: #ea580c; }
+    .ORGANIZACAO { background: #f0fdf4; color: #16a34a; }
+    .ADMIN       { background: #faf5ff; color: #9333ea; }
+
+    .vaga-rank { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+    .vaga-rank:last-child { border-bottom: none; }
+    .rank-num  { width: 28px; height: 28px; border-radius: 8px; background: #f0f5ff; color: #2563eb; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .rank-info { flex: 1; }
+    .rank-info strong { font-size: 14px; color: #1a1a2e; display: block; }
+    .rank-info span   { font-size: 12px; color: #888; }
+    .rank-count { font-size: 18px; font-weight: 800; color: #2563eb; }
+
+    .chart-mensal-container { position: relative; width: 100%; height: 220px; }
+    .tabs    { display: flex; gap: 6px; }
+    .tab-btn { padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid #e5e7eb; background: transparent; color: #888; transition: all 0.15s; }
+    .tab-btn:hover  { background: #f0f5ff; color: #2563eb; border-color: #2563eb; }
+    .tab-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+
+    .loading { color: #bbb; font-size: 13px; text-align: center; padding: 20px; }
+
+    
+    footer { background: #1a1a2e; padding: 40px 48px 0; margin-top: 40px; }
+    .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 32px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .footer-logo { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+    .footer-logo .uni { color: #2563eb; }
+    .footer-logo .hub { color: #d63384; }
+    .footer-desc { font-size: 13px; color: rgba(255,255,255,0.45); }
+    .footer-col h4 { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+    .footer-col p, .footer-col a { font-size: 13px; color: rgba(255,255,255,0.45); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; text-decoration: none; }
+    .footer-col a:hover { color: #fff; }
+    .footer-bottom { text-align: center; padding: 16px 0; font-size: 12px; color: rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-esquerda">
+      <a class="nav-logo" href="dashboard.html">
+        <img src="../../imagens/unihub-logo.jpg" alt="UniHub">
+      </a>
+      <div class="nav-links">
+        <a href="dashboard.html" class="ativo">Dashboard</a>
+        <a href="users.html">Utilizadores</a>
+        <a href="vagas.html">Vagas</a>
+        <a href="Estatistica.html">Estatísticas</a>
+      </div>
+    </div>
+    <div class="nav-direita">
+      <button class="btn-logout" onclick="logout()"><i class="bx bx-log-out"></i> Sair</button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="main-header">
+      <h1>Dashboard</h1>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon azul"><i class="bx bx-user"></i></div>
+        <div class="stat-valor" id="total-utilizadores">—</div>
+        <div class="stat-label">Utilizadores</div>
+        <div class="stat-sub" id="sub-utilizadores"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon verde"><i class="bx bx-briefcase"></i></div>
+        <div class="stat-valor" id="total-vagas">—</div>
+        <div class="stat-label">Vagas Publicadas</div>
+        <div class="stat-sub" id="sub-vagas"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon laranja"><i class="bx bx-file"></i></div>
+        <div class="stat-valor" id="total-candidaturas">—</div>
+        <div class="stat-label">Candidaturas</div>
+        <div class="stat-sub" id="sub-candidaturas"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon roxo"><i class="bx bx-heart"></i></div>
+        <div class="stat-valor" id="total-ongs">—</div>
+        <div class="stat-label">ONGs Registadas</div>
+      </div>
+    </div>
+
+    <div class="secoes-grid">
+
+      <div class="secao-card">
+        <div class="secao-titulo"><i class="bx bx-pie-chart-alt"></i> Utilizadores por Tipo</div>
+        <div id="chart-utilizadores"><p class="loading">A carregar...</p></div>
+      </div>
+
+      <div class="secao-card">
+        <div class="secao-titulo"><i class="bx bx-bar-chart"></i> Candidaturas por Estado</div>
+        <div class="donut-wrapper">
+          <div class="donut-container">
+            <canvas id="donutCandidaturas"></canvas>
+            <div class="donut-center-label">
+              <strong id="donut-total">—</strong><span>total</span>
+            </div>
+          </div>
+          <div class="donut-legenda" id="donut-legenda"><p class="loading">A carregar...</p></div>
+        </div>
+      </div>
+
+      <div class="secao-card">
+        <div class="secao-titulo"><i class="bx bx-category"></i> Vagas por Tipo</div>
+        <div id="chart-vagas"><p class="loading">A carregar...</p></div>
+      </div>
+
+      <div class="secao-card">
+        <div class="secao-titulo"><i class="bx bx-trending-up"></i> Vagas Mais Candidatadas</div>
+        <div id="vagas-top"><p class="loading">A carregar...</p></div>
+      </div>
+
+      <div class="secao-card full">
+        <div class="secao-titulo" style="justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:8px">
+            <i class="bx bx-line-chart"></i> Atividade Mensal
+          </span>
+          <div class="tabs">
+            <button class="tab-btn active" onclick="mudarTab(this,'vagas')">Vagas</button>
+            <button class="tab-btn" onclick="mudarTab(this,'candidaturas')">Candidaturas</button>
+            <button class="tab-btn" onclick="mudarTab(this,'utilizadores')">Utilizadores</button>
+          </div>
+        </div>
+        <div class="chart-mensal-container">
+          <canvas id="chartMensal"></canvas>
+        </div>
+      </div>
+
+      <div class="secao-card full">
+        <div class="secao-titulo"><i class="bx bx-user-plus"></i> Últimos Utilizadores Registados</div>
+        <table class="tabela">
+          <thead>
+            <tr><th>Nome</th><th>Email</th><th>Tipo</th><th>Verificado</th><th>Data</th></tr>
+          </thead>
+          <tbody id="tabela-utilizadores">
+            <tr><td colspan="5" class="loading">A carregar...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div><!-- /main -->
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><span class="uni">Uni</span><span class="hub">Hub</span></div>
+        <p class="footer-desc">Conectando estudantes ao futuro.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Contacto</h4>
+        <p><i class="bx bx-envelope"></i> unihub@email.com</p>
+        <p><i class="bx bx-phone"></i> +351 900 000 000</p>
+        <p><i class="bx bx-map-pin"></i> Portugal</p>
+      </div>
+      <div class="footer-col">
+        <h4>Links</h4>
+        <a href="#">Sobre</a>
+        <a href="#">Privacidade</a>
+        <a href="#">Termos</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 UniHub. Todos os direitos reservados.</div>
+  </footer>
+
+  <script>
+    const BASE  = 'http://localhost:3000/api';
+    const token = localStorage.getItem('token');
+
+    function barra(label, valor, max, cor) {
+      const pct = max > 0 ? Math.round((valor / max) * 100) : 0;
+      return `<div class="barra-item">
+        <div class="barra-label"><span>${label}</span><span>${valor}</span></div>
+        <div class="barra-bg"><div class="barra-fill ${cor}" style="width:${pct}%"></div></div>
+      </div>`;
+    }
+
+    function agruparPorMes(lista, campoData) {
+      const nomeMes  = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      const agora    = new Date();
+      const ultimos5 = Array.from({ length: 5 }, (_, i) => {
+        const d = new Date(agora.getFullYear(), agora.getMonth() - 4 + i, 1);
+        return { num: d.getMonth(), ano: d.getFullYear(), label: nomeMes[d.getMonth()] };
+      });
+      return {
+        labels: ultimos5.map(m => m.label),
+        dados:  ultimos5.map(m =>
+          lista.filter(x => {
+            const d = new Date(x[campoData]);
+            return d.getMonth() === m.num && d.getFullYear() === m.ano;
+          }).length
+        )
+      };
+    }
+
+    let dadosMensais = {
+      vagas:        { labels: [], dados: [] },
+      candidaturas: { labels: [], dados: [] },
+      utilizadores: { labels: [], dados: [] }
+    };
+    let chartMensalObj = null;
+
+    function renderChartMensal(chave) {
+      const cores = { vagas: '#2563eb', candidaturas: '#ea580c', utilizadores: '#16a34a' };
+      const cor   = cores[chave];
+      const { labels, dados } = dadosMensais[chave];
+      if (chartMensalObj) {
+        chartMensalObj.data.labels                       = labels;
+        chartMensalObj.data.datasets[0].data             = dados;
+        chartMensalObj.data.datasets[0].backgroundColor  = cor + '33';
+        chartMensalObj.data.datasets[0].borderColor      = cor;
+        chartMensalObj.update();
+      } else {
+        chartMensalObj = new Chart(document.getElementById('chartMensal').getContext('2d'), {
+          type: 'bar',
+          data: { labels, datasets: [{ data: dados, backgroundColor: cor+'33', borderColor: cor, borderWidth: 2, borderRadius: 6 }] },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#aaa', font: { size: 12 } } },
+              y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#aaa', font: { size: 12 }, stepSize: 1 }, beginAtZero: true }
+            }
+          }
+        });
+      }
+    }
+
+    function mudarTab(el, chave) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      renderChartMensal(chave);
+    }
+
+    let donutObj = null;
+
+    function renderDonut(pendentes, aceites, rejeitadas) {
+      const total  = pendentes + aceites + rejeitadas || 1;
+      const dados  = [pendentes, aceites, rejeitadas];
+      const cores  = ['#eab308', '#16a34a', '#ea580c'];
+      const labels = ['Pendentes', 'Aceites', 'Rejeitadas'];
+      document.getElementById('donut-total').textContent = pendentes + aceites + rejeitadas;
+      if (donutObj) { donutObj.data.datasets[0].data = dados; donutObj.update(); }
+      else {
+        donutObj = new Chart(document.getElementById('donutCandidaturas').getContext('2d'), {
+          type: 'doughnut',
+          data: { labels, datasets: [{ data: dados, backgroundColor: cores, borderWidth: 0, hoverOffset: 4 }] },
+          options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+        });
+      }
+      document.getElementById('donut-legenda').innerHTML = labels.map((l, i) => `
+        <div class="legenda-item">
+          <div class="legenda-dot" style="background:${cores[i]}"></div>
+          <span class="legenda-label">${l}</span>
+          <span class="legenda-val">${dados[i]}</span>
+          <span class="legenda-pct">${Math.round(dados[i] / total * 100)}%</span>
+        </div>`).join('');
+    }
+
+    async function carregar() {
+      try {
+        const res   = await fetch(`${BASE}/admin/utilizadores`, { headers: { Authorization: 'Bearer ' + token } });
+        const lista = await res.json();
+        const estudantes = lista.filter(u => u.tipo_utilizador === 'ESTUDANTE').length;
+        const empresas   = lista.filter(u => u.tipo_utilizador === 'EMPRESA').length;
+        const ongs       = lista.filter(u => u.tipo_utilizador === 'ORGANIZACAO').length;
+        const admins     = lista.filter(u => u.tipo_utilizador === 'ADMIN').length;
+        document.getElementById('total-utilizadores').textContent = lista.length;
+        document.getElementById('sub-utilizadores').textContent   = `${estudantes} estudantes · ${empresas} empresas`;
+        document.getElementById('total-ongs').textContent         = ongs;
+        const maxU = Math.max(estudantes, empresas, ongs, admins) || 1;
+        document.getElementById('chart-utilizadores').innerHTML =
+          barra('Estudantes', estudantes, maxU, 'azul')    +
+          barra('Empresas',   empresas,   maxU, 'laranja') +
+          barra('ONGs',       ongs,       maxU, 'verde')   +
+          barra('Admins',     admins,     maxU, 'roxo');
+        const ultimos = [...lista].sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em)).slice(0, 5);
+        document.getElementById('tabela-utilizadores').innerHTML = ultimos.map(u => `
+          <tr>
+            <td><strong>${u.nome}</strong></td>
+            <td>${u.email}</td>
+            <td><span class="tipo-badge ${u.tipo_utilizador}">${u.tipo_utilizador}</span></td>
+            <td style="color:${u.verificado ? '#16a34a' : '#dc2626'};font-weight:700">${u.verificado ? '✓ Sim' : '✕ Não'}</td>
+            <td>${u.criado_em ? new Date(u.criado_em).toLocaleDateString('pt') : '—'}</td>
+          </tr>`).join('');
+        dadosMensais.utilizadores = agruparPorMes(lista, 'criado_em');
+      } catch(e) { console.error('Erro utilizadores:', e); }
+
+      try {
+        const res   = await fetch(`${BASE}/vaga`);
+        const vagas = await res.json();
+        const estagios = vagas.filter(v => v.tipo === 'ESTAGIO').length;
+        const empregos = vagas.filter(v => v.tipo === 'EMPREGO').length;
+        const vol      = vagas.filter(v => v.tipo === 'VOLUNTARIADO').length;
+        document.getElementById('total-vagas').textContent = vagas.length;
+        document.getElementById('sub-vagas').textContent   = `${estagios} estágios · ${empregos} empregos · ${vol} voluntariado`;
+        const maxV = Math.max(estagios, empregos, vol) || 1;
+        document.getElementById('chart-vagas').innerHTML =
+          barra('Estágio',      estagios, maxV, 'azul')    +
+          barra('Emprego',      empregos, maxV, 'laranja') +
+          barra('Voluntariado', vol,      maxV, 'verde');
+        dadosMensais.vagas = agruparPorMes(vagas, 'data_publicacao');
+        renderChartMensal('vagas');
+      } catch(e) { console.error('Erro vagas:', e); }
+
+      try {
+        const res   = await fetch(`${BASE}/admin/candidaturas`, { headers: { Authorization: 'Bearer ' + token } });
+        const cands = await res.json();
+        const pendentes  = cands.filter(c => c.estado === 'PENDENTE').length;
+        const aceites    = cands.filter(c => c.estado === 'ACEITE').length;
+        const rejeitadas = cands.filter(c => c.estado === 'REJEITADO').length;
+        document.getElementById('total-candidaturas').textContent = cands.length;
+        document.getElementById('sub-candidaturas').textContent   = `${aceites} aceites · ${pendentes} pendentes`;
+        renderDonut(pendentes, aceites, rejeitadas);
+        const vagaCount = {};
+        cands.forEach(c => {
+          if (!vagaCount[c.vaga_id]) vagaCount[c.vaga_id] = { titulo: c.titulo || 'Vaga #'+c.vaga_id, empresa: c.nome_empresa||'', count: 0 };
+          vagaCount[c.vaga_id].count++;
+        });
+        const top = Object.values(vagaCount).sort((a,b) => b.count-a.count).slice(0,5);
+        document.getElementById('vagas-top').innerHTML = top.length
+          ? top.map((v,i) => `
+              <div class="vaga-rank">
+                <div class="rank-num">${i+1}</div>
+                <div class="rank-info"><strong>${v.titulo}</strong><span>${v.empresa}</span></div>
+                <div class="rank-count">${v.count}</div>
+              </div>`).join('')
+          : '<p class="loading">Sem dados.</p>';
+        dadosMensais.candidaturas = agruparPorMes(cands, 'data_candidatura');
+      } catch(e) { console.error('Erro candidaturas:', e); }
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = '../../pages/index.html';
+    }
+
+    carregar();
+  </script>
+</body>
+</html>

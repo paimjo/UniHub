@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniHub | Admin - Vagas</title>
+  <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f4f6fb; font-family: 'Poppins', system-ui, sans-serif; min-height: 100vh; }
+
+    /* ══════════════════════════════════════
+       NAVBAR — igual ao dashboard e users
+    ══════════════════════════════════════ */
+    .navbar {
+      width: 100% !important;
+      height: 130px !important;
+      background: #ffffff !important;
+      border-bottom: 1px solid #f0f0f0 !important;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding: 0 48px !important;
+      position: fixed !important;
+      top: 0 !important; left: 0 !important;
+      z-index: 1000 !important;
+    }
+    .nav-esquerda { display: flex; align-items: center; gap: 40px; }
+    .nav-logo img { width: 130px; display: block; }
+    .nav-links    { display: flex; align-items: center; gap: 4px; }
+    .nav-links a  {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 12px;
+      color: #444; text-decoration: none;
+      font-size: 15px; font-weight: 500;
+      transition: all 0.18s; white-space: nowrap;
+    }
+    .nav-links a i     { font-size: 20px; }
+    .nav-links a:hover { background: #f0f5ff; color: #2563eb; }
+    .nav-links a.ativo { background: #eff6ff; color: #2563eb; font-weight: 700; }
+    .nav-direita { display: flex; align-items: center; gap: 16px; }
+    .btn-logout {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: 20px;
+      border: 1.5px solid #e5e7eb; background: #f8f8f8;
+      color: #444; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.18s;
+    }
+    .btn-logout:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+    .btn-logout i { font-size: 18px; }
+
+    /* ══════════════════════════════════════
+       MAIN
+    ══════════════════════════════════════ */
+    .main { margin-top: 130px; padding: 32px 48px 48px; }
+    .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .main-header h1 { font-size: 22px; font-weight: 800; color: #1a1a2e; }
+
+    /* ══════════════════════════════════════
+       FILTROS — inalterados
+    ══════════════════════════════════════ */
+    .filtros-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filtro-select { padding: 9px 14px; border-radius: 10px; border: 1.5px solid #eee; font-size: 13px; outline: none; background: #fff; color: #555; cursor: pointer; }
+    .filtro-select:focus { border-color: #2563eb; }
+    .pesquisa-admin { position: relative; flex: 1; max-width: 300px; }
+    .pesquisa-admin input { width: 100%; padding: 9px 14px 9px 36px; border-radius: 10px; border: 1.5px solid #eee; font-size: 13px; outline: none; background: #fff; }
+    .pesquisa-admin input:focus { border-color: #2563eb; }
+    .pesquisa-admin i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #aaa; }
+
+    /* ══════════════════════════════════════
+       TABELA — inalterada
+    ══════════════════════════════════════ */
+    .tabela-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+    .tabela { width: 100%; border-collapse: collapse; }
+    .tabela th { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+    .tabela td { font-size: 13px; color: #333; padding: 14px 16px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
+    .tabela tr:last-child td { border-bottom: none; }
+    .tabela tr:hover td { background: #f8faff; }
+    .tipo-badge   { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .ESTAGIO      { background: #eff6ff; color: #2563eb; }
+    .EMPREGO      { background: #fff7ed; color: #ea580c; }
+    .VOLUNTARIADO { background: #f0fdf4; color: #16a34a; }
+    .acoes    { display: flex; gap: 6px; }
+    .btn-acao { width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.2s; }
+    .btn-ver    { background: #eff6ff; color: #2563eb; } .btn-ver:hover    { background: #dbeafe; }
+    .btn-apagar { background: #fee2e2; color: #dc2626; } .btn-apagar:hover { background: #fecaca; }
+
+    /* ══════════════════════════════════════
+       MODAL — inalterado
+    ══════════════════════════════════════ */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+    .modal-overlay.aberto { display: flex; }
+    .modal { background: #fff; border-radius: 20px; padding: 32px; max-width: 560px; width: 90%; max-height: 80vh; overflow-y: auto; }
+    .modal h2 { font-size: 18px; font-weight: 700; color: #1a1a2e; margin-bottom: 20px; }
+    .modal-campo { margin-bottom: 14px; }
+    .modal-campo label { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .modal-campo p { font-size: 14px; color: #333; }
+    .modal-acoes { display: flex; gap: 10px; margin-top: 24px; }
+    .btn-fechar { flex: 1; padding: 11px; border-radius: 10px; background: #f4f6fb; color: #555; border: 1.5px solid #eee; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-apagar-modal { flex: 1; padding: 11px; border-radius: 10px; background: #ef4444; color: #fff; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-apagar-modal:hover { background: #dc2626; }
+
+    .loading  { text-align: center; padding: 40px; color: #bbb; font-size: 14px; }
+    .contagem { font-size: 13px; color: #888; margin-bottom: 12px; }
+    footer { background: #1a1a2e; padding: 40px 48px 0; margin-top: 40px; }
+    .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 32px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .footer-logo { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+    .footer-logo .uni { color: #2563eb; }
+    .footer-logo .hub { color: #d63384; }
+    .footer-desc { font-size: 13px; color: rgba(255,255,255,0.45); }
+    .footer-col h4 { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+    .footer-col p, .footer-col a { font-size: 13px; color: rgba(255,255,255,0.45); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; text-decoration: none; }
+    .footer-col a:hover { color: #fff; }
+    .footer-bottom { text-align: center; padding: 16px 0; font-size: 12px; color: rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════════ -->
+  <nav class="navbar">
+    <div class="nav-esquerda">
+      <a class="nav-logo" href="dashboard.html">
+        <img src="../../imagens/unihub-logo.jpg" alt="UniHub">
+      </a>
+     <div class="nav-links">
+  <a href="dashboard.html">Dashboard</a>
+  <a href="users.html">Utilizadores</a>
+  <a href="vagas.html" class="ativo">Vagas</a>
+  <a href="Estatistica.html">Estatísticas</a>
+</div>
+    </div>
+    <div class="nav-direita">
+      <button class="btn-logout" onclick="logout()"><i class="bx bx-log-out"></i> Sair</button>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+     Main
+  ══════════════════════════════════════ -->
+  <div class="main">
+    <div class="main-header">
+      <h1>Gestão de Vagas</h1>
+    </div>
+
+    <div class="filtros-bar">
+      <div class="pesquisa-admin">
+        <i class="bx bx-search"></i>
+        <input type="text" id="pesquisa" placeholder="Pesquisar vaga ou empresa..." oninput="filtrar()">
+      </div>
+      <select class="filtro-select" id="filtro-tipo" onchange="filtrar()">
+        <option value="">Tipo (todos)</option>
+        <option value="ESTAGIO">Estágio</option>
+        <option value="EMPREGO">Emprego</option>
+        <option value="VOLUNTARIADO">Voluntariado</option>
+      </select>
+      <select class="filtro-select" id="filtro-regime" onchange="filtrar()">
+        <option value="">Regime (todos)</option>
+        <option value="PRESENCIAL">Presencial</option>
+        <option value="REMOTO">Remoto</option>
+        <option value="HIBRIDO">Híbrido</option>
+      </select>
+    </div>
+
+    <p class="contagem" id="contagem"></p>
+
+    <div class="tabela-card">
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Empresa / ONG</th>
+            <th>Tipo</th>
+            <th>Regime</th>
+            <th>Cidade</th>
+            <th>Publicada em</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-vagas">
+          <tr><td colspan="7" class="loading">A carregar vagas...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <h2 id="modal-titulo">Detalhe da Vaga</h2>
+      <div class="modal-campo"><label>Empresa</label><p id="modal-empresa"></p></div>
+      <div class="modal-campo"><label>Tipo</label><p id="modal-tipo"></p></div>
+      <div class="modal-campo"><label>Regime</label><p id="modal-regime"></p></div>
+      <div class="modal-campo"><label>Cidade</label><p id="modal-cidade"></p></div>
+      <div class="modal-campo"><label>Remuneração</label><p id="modal-remuneracao"></p></div>
+      <div class="modal-campo"><label>Nível</label><p id="modal-nivel"></p></div>
+      <div class="modal-campo"><label>Descrição</label><p id="modal-descricao"></p></div>
+      <div class="modal-campo"><label>Competências</label><p id="modal-competencias"></p></div>
+      <div class="modal-acoes">
+        <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
+        <button class="btn-apagar-modal" onclick="apagarVaga()"><i class="bx bx-trash"></i> Apagar Vaga</button>
+      </div>
+    </div>
+  </div>
+
+ <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><span class="uni">Uni</span><span class="hub">Hub</span></div>
+        <p class="footer-desc">Conectando estudantes ao futuro.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Contacto</h4>
+        <p><i class="bx bx-envelope"></i> unihub@email.com</p>
+        <p><i class="bx bx-phone"></i> +351 900 000 000</p>
+        <p><i class="bx bx-map-pin"></i> Portugal</p>
+      </div>
+      <div class="footer-col">
+        <h4>Links</h4>
+        <a href="#">Sobre</a>
+        <a href="#">Privacidade</a>
+        <a href="#">Termos</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 UniHub. Todos os direitos reservados.</div>
+  </footer>
+       
+  <script>
+    const BASE  = 'http://localhost:3000/api';
+    const token = localStorage.getItem('token');
+    let todasVagas = [];
+    let vagaAtivaId = null;
+
+    async function carregar() {
+      const res  = await fetch(`${BASE}/vaga`, { headers: { Authorization: 'Bearer ' + token } });
+      todasVagas = await res.json();
+      filtrar();
+    }
+
+    function filtrar() {
+      const texto  = document.getElementById('pesquisa').value.toLowerCase();
+      const tipo   = document.getElementById('filtro-tipo').value;
+      const regime = document.getElementById('filtro-regime').value;
+
+      let resultado = todasVagas;
+      if (texto)  resultado = resultado.filter(v => v.titulo.toLowerCase().includes(texto) || (v.nome_empresa || '').toLowerCase().includes(texto) || (v.nome_organizacao || '').toLowerCase().includes(texto));
+      if (tipo)   resultado = resultado.filter(v => v.tipo   === tipo);
+      if (regime) resultado = resultado.filter(v => v.regime === regime);
+
+      document.getElementById('contagem').textContent = `${resultado.length} vaga(s) encontrada(s)`;
+      renderizar(resultado);
+    }
+
+    function renderizar(vagas) {
+      const tbody = document.getElementById('tabela-vagas');
+      if (!vagas.length) { tbody.innerHTML = '<tr><td colspan="7" class="loading">Sem vagas encontradas.</td></tr>'; return; }
+      tbody.innerHTML = vagas.map(v => `
+        <tr>
+          <td><strong>${v.titulo}</strong></td>
+          <td>${v.nome_empresa || v.nome_organizacao || '—'}</td>
+          <td><span class="tipo-badge ${v.tipo}">${v.tipo}</span></td>
+          <td>${v.regime || '—'}</td>
+          <td>${v.cidade || '—'}</td>
+          <td>${v.data_publicacao ? new Date(v.data_publicacao).toLocaleDateString('pt') : '—'}</td>
+          <td>
+            <div class="acoes">
+              <button class="btn-acao btn-ver"    onclick="verDetalhe(${v.vaga_id})"    title="Ver detalhe"><i class="bx bx-show"></i></button>
+              <button class="btn-acao btn-apagar" onclick="confirmarApagar(${v.vaga_id})" title="Apagar"><i class="bx bx-trash"></i></button>
+            </div>
+          </td>
+        </tr>`).join('');
+    }
+
+    async function verDetalhe(id) {
+      const res = await fetch(`${BASE}/vaga/${id}`);
+      const v   = await res.json();
+      vagaAtivaId = id;
+      document.getElementById('modal-titulo').textContent      = v.titulo;
+      document.getElementById('modal-empresa').textContent     = v.nome_empresa || v.nome_organizacao || '—';
+      document.getElementById('modal-tipo').textContent        = v.tipo             || '—';
+      document.getElementById('modal-regime').textContent      = v.regime           || '—';
+      document.getElementById('modal-cidade').textContent      = v.cidade           || '—';
+      document.getElementById('modal-remuneracao').textContent = v.remuneracao      || '—';
+      document.getElementById('modal-nivel').textContent       = v.nivel_exigencia  || '—';
+      document.getElementById('modal-descricao').textContent   = v.descricao        || '—';
+      document.getElementById('modal-competencias').textContent= v.competencias     || '—';
+      document.getElementById('modal').classList.add('aberto');
+    }
+
+    function confirmarApagar(id) {
+      vagaAtivaId = id;
+      if (confirm('Tens a certeza que queres apagar esta vaga?')) apagarVaga();
+    }
+
+    async function apagarVaga() {
+      if (!vagaAtivaId) return;
+      await fetch(`${BASE}/vaga/${vagaAtivaId}`, {
+        method: 'DELETE',
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      fecharModal();
+      todasVagas  = todasVagas.filter(v => v.vaga_id !== vagaAtivaId);
+      vagaAtivaId = null;
+      filtrar();
+    }
+
+    function fecharModal() { document.getElementById('modal').classList.remove('aberto'); }
+    function logout()      { localStorage.clear(); window.location.href = '../../pages/index.html'; }
+
+    carregar();
+  </script>
+</body>
+</html>

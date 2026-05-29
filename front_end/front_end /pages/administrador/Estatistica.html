@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniHub | Painel Estatístico</title>
+  <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f4f6fb; font-family: 'Poppins', system-ui, sans-serif; min-height: 100vh; }
+
+    .navbar {
+      width: 100% !important; height: 130px !important; background: #ffffff !important;
+      border-bottom: 1px solid #f0f0f0 !important; box-shadow: 0 2px 12px rgba(0,0,0,0.05) !important;
+      display: flex !important; align-items: center !important; justify-content: space-between !important;
+      padding: 0 48px !important; position: fixed !important; top: 0 !important; left: 0 !important; z-index: 1000 !important;
+    }
+    .nav-esquerda { display: flex; align-items: center; gap: 40px; }
+    .nav-logo img { width: 130px; display: block; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links a {
+      display: flex; align-items: center; padding: 10px 20px; border-radius: 12px;
+      color: #444; text-decoration: none; font-size: 15px; font-weight: 500;
+      transition: all 0.18s; white-space: nowrap;
+    }
+    .nav-links a:hover { background: #f0f5ff; color: #2563eb; }
+    .nav-links a.ativo { background: #eff6ff; color: #2563eb; font-weight: 700; }
+    .nav-direita { display: flex; align-items: center; gap: 16px; }
+    .btn-logout {
+      display: flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 20px;
+      border: 1.5px solid #e5e7eb; background: #f8f8f8; color: #444; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.18s;
+    }
+    .btn-logout:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+    .btn-logout i { font-size: 18px; }
+
+    .main { margin-top: 130px; padding: 32px 48px 48px; }
+    .main-header { margin-bottom: 28px; }
+    .main-header h1 { font-size: 22px; font-weight: 800; color: #1a1a2e; }
+
+    .secao-bloco { display: flex; align-items: center; gap: 10px; margin: 32px 0 16px; }
+    .secao-bloco .s-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .secao-bloco h2 { font-size: 16px; font-weight: 700; color: #1a1a2e; margin: 0; }
+    .secao-bloco small { font-size: 12px; color: #888; margin-left: 4px; }
+    hr.div { border: none; border-top: 1.5px solid #eee; margin: 0 0 18px; }
+
+    .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 14px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+    .mc { background:#fff; border-radius:14px; padding:18px; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+    .mc-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:10px; }
+    .ic-azul    { background:#eff6ff; color:#2563eb; }
+    .ic-verde   { background:#f0fdf4; color:#16a34a; }
+    .ic-laranja { background:#fff7ed; color:#ea580c; }
+    .ic-roxo    { background:#faf5ff; color:#9333ea; }
+    .ic-amarelo { background:#fefce8; color:#ca8a04; }
+    .ic-vermelho{ background:#fef2f2; color:#dc2626; }
+    .ic-ciano   { background:#ecfeff; color:#0891b2; }
+    .mc-val  { font-size:26px; font-weight:800; color:#1a1a2e; line-height:1; }
+    .mc-lbl  { font-size:12px; color:#888; font-weight:500; margin-top:4px; }
+    .mc-sub  { font-size:11px; color:#aaa; margin-top:3px; }
+    .mc-ci   { font-size:11px; color:#2563eb; margin-top:6px; background:#eff6ff; padding:2px 8px; border-radius:20px; display:inline-block; font-weight:600; }
+    .mc-badge{ font-size:11px; margin-top:5px; padding:2px 8px; border-radius:20px; display:inline-block; font-weight:600; }
+    .bg-verde   { background:#f0fdf4; color:#16a34a; }
+    .bg-amarelo { background:#fefce8; color:#ca8a04; }
+    .bg-vermelho{ background:#fef2f2; color:#dc2626; }
+
+    .card { background:#fff; border-radius:14px; padding:22px; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+    .card h3 { font-size:13px; font-weight:700; color:#1a1a2e; margin:0 0 14px; display:flex; align-items:center; gap:6px; }
+    .card h3 i { color:#2563eb; font-size:16px; }
+    .chart-wrap { position:relative; width:100%; height:220px; }
+
+    .funnel { display:flex; flex-direction:column; gap:6px; padding:8px 0; }
+    .funnel-step { display:flex; align-items:center; gap:10px; }
+    .funnel-bar-wrap { flex:1; background:#f0f0f0; border-radius:8px; height:32px; overflow:hidden; }
+    .funnel-bar { height:100%; border-radius:8px; display:flex; align-items:center; padding-left:10px; font-size:12px; font-weight:700; color:#fff; transition:width 1s ease; white-space:nowrap; }
+    .funnel-label { width:130px; font-size:12px; color:#555; text-align:right; flex-shrink:0; }
+    .funnel-val   { width:50px; font-size:12px; font-weight:700; color:#1a1a2e; text-align:right; flex-shrink:0; }
+    .funnel-drop  { font-size:11px; color:#dc2626; width:44px; text-align:right; flex-shrink:0; }
+
+    .top-list { list-style:none; padding:0; margin:0; }
+    .top-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f5f5f5; font-size:13px; }
+    .top-item:last-child { border-bottom:none; }
+    .top-rank { width:32px; height:32px; border-radius:8px; background:#f0f5ff; color:#2563eb; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .top-info { flex:1; }
+    .top-info strong { display:block; color:#1a1a2e; }
+    .top-info span   { font-size:11px; color:#888; }
+    .top-val { font-weight:700; color:#2563eb; }
+
+    .ic-nota { background:#eff6ff; border-left:3px solid #2563eb; padding:12px 16px; border-radius:0 8px 8px 0; font-size:12px; color:#1e40af; margin-bottom:14px; line-height:1.6; }
+    .ic-nota strong { font-weight:700; }
+
+    .loading { color:#bbb; font-size:13px; text-align:center; padding:20px; }
+    
+    footer { background: #1a1a2e; padding: 40px 48px 0; margin-top: 40px; }
+    .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 32px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .footer-logo { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+    .footer-logo .uni { color: #2563eb; }
+    .footer-logo .hub { color: #d63384; }
+    .footer-desc { font-size: 13px; color: rgba(255,255,255,0.45); }
+    .footer-col h4 { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+    .footer-col p, .footer-col a { font-size: 13px; color: rgba(255,255,255,0.45); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; text-decoration: none; }
+    .footer-col a:hover { color: #fff; }
+    .footer-bottom { text-align: center; padding: 16px 0; font-size: 12px; color: rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-esquerda">
+      <a class="nav-logo" href="dashboard.html">
+        <img src="../../imagens/unihub-logo.jpg" alt="UniHub">
+      </a>
+      <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="users.html">Utilizadores</a>
+        <a href="vagas.html">Vagas</a>
+        <a href="Estatistica.html" class="ativo">Estatísticas</a>
+      </div>
+    </div>
+    <div class="nav-direita">
+      <button class="btn-logout" onclick="logout()"><i class="bx bx-log-out"></i> Sair</button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="main-header">
+      <h1>Painel Estatístico</h1>
+    </div>
+
+    <!-- ── MÉTRICAS ESSENCIAIS ── -->
+    <div class="secao-bloco">
+      <div class="s-icon" style="background:#eff6ff;color:#2563eb"><i class="bx bx-pulse"></i></div>
+      <h2>Métricas Essenciais</h2><small>com intervalo de confiança a 95%</small>
+    </div>
+    <hr class="div">
+
+    <div class="ic-nota">
+      <strong>Nota sobre Intervalos de Confiança (IC 95%):</strong> Os valores abaixo são estimativas baseadas nos dados recolhidos. O IC 95% indica que, se repetíssemos a recolha de dados 100 vezes, em 95 dessas vezes o valor real estaria dentro do intervalo apresentado. Quanto menor o intervalo, maior a precisão da estimativa.
+    </div>
+
+    <div class="grid-4">
+      <div class="mc">
+        <div class="mc-icon ic-azul"><i class="bx bx-user-check"></i></div>
+        <div class="mc-val" id="v-ativos">—</div>
+        <div class="mc-lbl">Utilizadores Ativos</div>
+        <div class="mc-sub" id="s-ativos"></div>
+        <div class="mc-ci" id="ci-ativos"></div>
+      </div>
+      <div class="mc">
+        <div class="mc-icon ic-verde"><i class="bx bx-repeat"></i></div>
+        <div class="mc-val" id="v-retencao">—</div>
+        <div class="mc-lbl">Taxa de Retenção</div>
+        <div class="mc-sub">utilizadores com +1 candidatura</div>
+        <div class="mc-ci" id="ci-retencao"></div>
+        <div class="mc-badge" id="b-retencao"></div>
+      </div>
+      <div class="mc">
+        <div class="mc-icon ic-laranja"><i class="bx bx-transfer-alt"></i></div>
+        <div class="mc-val" id="v-conversao">—</div>
+        <div class="mc-lbl">Taxa de Conversão</div>
+        <div class="mc-sub">candidaturas aceites / total</div>
+        <div class="mc-ci" id="ci-conversao"></div>
+        <div class="mc-badge" id="b-conversao"></div>
+      </div>
+      <div class="mc">
+        <div class="mc-icon ic-vermelho"><i class="bx bx-exit"></i></div>
+        <div class="mc-val" id="v-abandono">—</div>
+        <div class="mc-lbl">Taxa de Abandono</div>
+        <div class="mc-sub">utilizadores sem candidatura</div>
+        <div class="mc-ci" id="ci-abandono"></div>
+        <div class="mc-badge" id="b-abandono"></div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="mc">
+        <div class="mc-icon ic-ciano"><i class="bx bx-briefcase-alt-2"></i></div>
+        <div class="mc-val" id="v-mcv">—</div>
+        <div class="mc-lbl">Média Candidaturas / Vaga</div>
+        <div class="mc-sub" id="s-mcv"></div>
+        <div class="mc-ci" id="ci-mcv"></div>
+      </div>
+      <div class="mc">
+        <div class="mc-icon ic-roxo"><i class="bx bx-user-plus"></i></div>
+        <div class="mc-val" id="v-mcu">—</div>
+        <div class="mc-lbl">Média Candidaturas / Utilizador</div>
+        <div class="mc-sub" id="s-mcu"></div>
+        <div class="mc-ci" id="ci-mcu"></div>
+      </div>
+      <div class="mc">
+        <div class="mc-icon ic-amarelo"><i class="bx bx-check-circle"></i></div>
+        <div class="mc-val" id="v-sucesso">—</div>
+        <div class="mc-lbl">Taxa de Sucesso</div>
+        <div class="mc-sub">aceites + pendentes / total</div>
+        <div class="mc-ci" id="ci-sucesso"></div>
+      </div>
+    </div>
+
+    <!-- ── VISUALIZAÇÕES BÁSICAS ── -->
+    <div class="secao-bloco">
+      <div class="s-icon" style="background:#f0fdf4;color:#16a34a"><i class="bx bx-line-chart"></i></div>
+      <h2>Visualizações Básicas</h2><small>obrigatórias</small>
+    </div>
+    <hr class="div">
+
+    <!-- Gráfico de linhas + Gráfico de barras -->
+    <div class="grid-2">
+      <div class="card">
+        <h3><i class="bx bx-line-chart"></i> Evolução no Tempo — Gráfico de Linhas</h3>
+        <div class="chart-wrap"><canvas id="chartLinhas"></canvas></div>
+      </div>
+      <div class="card">
+        <h3><i class="bx bx-bar-chart-alt-2"></i> Comparações — Gráfico de Barras</h3>
+        <div class="chart-wrap"><canvas id="chartBarras"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ── FUNIL DE CONVERSÃO ── -->
+    <div class="secao-bloco">
+      <div class="s-icon" style="background:#faf5ff;color:#9333ea"><i class="bx bx-filter-alt"></i></div>
+      <h2>Funil de Conversão</h2><small>passo a passo</small>
+    </div>
+    <hr class="div">
+
+    <div class="card" style="margin-bottom:14px">
+      <h3><i class="bx bx-filter-alt"></i> Funil de Conversão — Passo a Passo</h3>
+      <div class="funnel" id="funnel"></div>
+      <p style="font-size:11px;color:#aaa;margin-top:10px">Cada linha mostra a percentagem de utilizadores que avança para o passo seguinte. A taxa de abandono indica a perda entre passos consecutivos.</p>
+    </div>
+
+    <!-- ── TOP UTILIZADORES ── -->
+    <div class="secao-bloco">
+      <div class="s-icon" style="background:#ecfeff;color:#0891b2"><i class="bx bx-medal"></i></div>
+      <h2>Top Utilizadores & Vagas</h2><small>mais ativos na plataforma</small>
+    </div>
+    <hr class="div">
+
+    <div class="grid-2" style="margin-bottom:40px">
+      <div class="card">
+        <h3><i class="bx bx-medal"></i> Top 10% — Utilizadores Mais Ativos (≥ P90)</h3>
+        <ul class="top-list" id="top-users"><li class="loading">A carregar...</li></ul>
+      </div>
+      <div class="card">
+        <h3><i class="bx bx-bar-chart-alt"></i> Vagas Mais Candidatadas</h3>
+        <div class="chart-wrap"><canvas id="chartVagasTop"></canvas></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+ <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><span class="uni">Uni</span><span class="hub">Hub</span></div>
+        <p class="footer-desc">Conectando estudantes ao futuro.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Contacto</h4>
+        <p><i class="bx bx-envelope"></i> unihub@email.com</p>
+        <p><i class="bx bx-phone"></i> +351 900 000 000</p>
+        <p><i class="bx bx-map-pin"></i> Portugal</p>
+      </div>
+      <div class="footer-col">
+        <h4>Links</h4>
+        <a href="#">Sobre</a>
+        <a href="#">Privacidade</a>
+        <a href="#">Termos</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 UniHub. Todos os direitos reservados.</div>
+  </footer>
+  <script>
+const BASE  = 'http://localhost:3000/api';
+const token = localStorage.getItem('token');
+
+const soma  = a => a.reduce((s,v)=>s+v,0);
+const media = a => a.length ? soma(a)/a.length : 0;
+const variancia = a => {
+  if (a.length<2) return 0;
+  const m=media(a);
+  return a.reduce((s,v)=>s+Math.pow(v-m,2),0)/(a.length-1);
+};
+const dp  = a => Math.sqrt(variancia(a));
+const pct = (a,p) => {
+  if (!a.length) return 0;
+  const s=[...a].sort((x,y)=>x-y), idx=(p/100)*(s.length-1);
+  const lo=Math.floor(idx),hi=Math.ceil(idx);
+  return s[lo]+(s[hi]-s[lo])*(idx-lo);
+};
+const icProp = (p,n) => {
+  if (n===0) return {lo:0,hi:0};
+  const e=1.96*Math.sqrt(p*(1-p)/n);
+  return {lo:Math.max(0,p-e),hi:Math.min(1,p+e)};
+};
+const icMedia = (m,s,n) => {
+  const e=1.96*(s/Math.sqrt(n));
+  return {lo:m-e,hi:m+e};
+};
+const fmt  = (n,d=2)=>Number(n).toFixed(d);
+const fpct = n=>(n*100).toFixed(1)+'%';
+
+const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const agora=new Date();
+const ultimos5=Array.from({length:5},(_,i)=>{
+  const d=new Date(agora.getFullYear(),agora.getMonth()-4+i,1);
+  return {num:d.getMonth(),ano:d.getFullYear(),label:MESES[d.getMonth()]};
+});
+const contarMes=(lista,campo,mes,ano)=>lista.filter(x=>{const d=new Date(x[campo]);return d.getMonth()===mes&&d.getFullYear()===ano;}).length;
+
+function renderLinhas(vagas,cands,users){
+  new Chart(document.getElementById('chartLinhas').getContext('2d'),{type:'line',data:{labels:ultimos5.map(m=>m.label),datasets:[{label:'Candidaturas',data:ultimos5.map(m=>contarMes(cands,'data_candidatura',m.num,m.ano)),borderColor:'#2563eb',backgroundColor:'#2563eb20',borderWidth:2,tension:0.4,fill:true},{label:'Vagas',data:ultimos5.map(m=>contarMes(vagas,'data_publicacao',m.num,m.ano)),borderColor:'#16a34a',backgroundColor:'#16a34a20',borderWidth:2,tension:0.4,fill:true},{label:'Utilizadores',data:ultimos5.map(m=>contarMes(users,'criado_em',m.num,m.ano)),borderColor:'#ea580c',backgroundColor:'#ea580c20',borderWidth:2,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{color:'#aaa'}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{color:'#aaa',stepSize:1},beginAtZero:true}}}});
+}
+
+function renderBarras(estudantes,empresas,ongs,admins){
+  new Chart(document.getElementById('chartBarras').getContext('2d'),{type:'bar',data:{labels:['Estudantes','Empresas','ONGs','Admins'],datasets:[{label:'Utilizadores',data:[estudantes,empresas,ongs,admins],backgroundColor:['#2563eb99','#16a34a99','#9333ea99','#ea580c99'],borderColor:['#2563eb','#16a34a','#9333ea','#ea580c'],borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#aaa'}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{color:'#aaa',stepSize:1},beginAtZero:true}}}});
+}
+
+function renderFunil(totalUsers,ativos,comMaisDe1,aceites){
+  const passos=[{label:'Utilizadores registados',val:totalUsers,cor:'#2563eb'},{label:'Fizeram pelo menos 1 candidatura',val:ativos,cor:'#3b82f6'},{label:'Fizeram mais de 1 candidatura',val:comMaisDe1,cor:'#6366f1'},{label:'Tiveram candidatura aceite',val:aceites,cor:'#8b5cf6'}];
+  const max=totalUsers||1;
+  document.getElementById('funnel').innerHTML=passos.map((p,i)=>{const pctBar=Math.round(p.val/max*100);const drop=i>0&&passos[i-1].val>0?Math.round((1-p.val/passos[i-1].val)*100):null;return `<div class="funnel-step"><div class="funnel-label">${p.label}</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pctBar}%;background:${p.cor}">${p.val}</div></div><div class="funnel-val">${fpct(p.val/max)}</div><div class="funnel-drop">${drop!==null?`−${drop}%`:''}</div></div>`;}).join('');
+}
+
+function renderVagasTop(cands){
+  const cnt={};cands.forEach(c=>{if(!cnt[c.vaga_id])cnt[c.vaga_id]={titulo:c.titulo||'Vaga #'+c.vaga_id,n:0};cnt[c.vaga_id].n++;});
+  const top=Object.values(cnt).sort((a,b)=>b.n-a.n).slice(0,6);
+  new Chart(document.getElementById('chartVagasTop').getContext('2d'),{type:'bar',data:{labels:top.map(v=>v.titulo.length>18?v.titulo.slice(0,16)+'…':v.titulo),datasets:[{label:'Candidaturas',data:top.map(v=>v.n),backgroundColor:'#2563eb44',borderColor:'#2563eb',borderWidth:2,borderRadius:5}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{color:'#aaa'},beginAtZero:true},y:{grid:{display:false},ticks:{color:'#555',font:{size:11}}}}}});
+}
+
+async function carregar(){
+  try{
+    const [resU,resC,resV]=await Promise.all([
+      fetch(`${BASE}/admin/utilizadores`,{headers:{Authorization:'Bearer '+token}}),
+      fetch(`${BASE}/admin/candidaturas`, {headers:{Authorization:'Bearer '+token}}),
+      fetch(`${BASE}/vaga`)
+    ]);
+    const utilizadores=await resU.json();
+    const candidaturas =await resC.json();
+    const vagas        =await resV.json();
+
+    const estudantes=utilizadores.filter(u=>u.tipo_utilizador==='ESTUDANTE');
+    const nEst=estudantes.length||1, nCands=candidaturas.length, nVagas=vagas.length||1;
+    const cpUser=estudantes.map(u=>candidaturas.filter(c=>c.uti_id===u.uti_id).length);
+    const nAtivos=cpUser.filter(n=>n>0).length, nRetencao=cpUser.filter(n=>n>1).length;
+    const nAceites=candidaturas.filter(c=>c.estado==='ACEITE').length;
+    const nPendentes=candidaturas.filter(c=>c.estado==='PENDENTE').length;
+    const pAtivos=nAtivos/nEst, pRetencao=nRetencao/nEst;
+    const pConversao=nCands>0?nAceites/nCands:0, pAbandono=(nEst-nAtivos)/nEst;
+    const mCpV=nCands/nVagas, mCpU=nCands/nEst, dpCpU=dp(cpUser);
+    const pSucesso=nCands>0?(nAceites+nPendentes)/nCands:0;
+
+    const ciAtivos=icProp(pAtivos,nEst), ciRet=icProp(pRetencao,nEst);
+    const ciConv=icProp(pConversao,nCands||1), ciAbandono=icProp(pAbandono,nEst);
+    const ciMcu=icMedia(mCpU,dpCpU,nEst), ciMcv=icMedia(mCpV,dpCpU,nVagas);
+    const ciSucesso=icProp(pSucesso,nCands||1);
+
+    document.getElementById('v-ativos').textContent=nAtivos;
+    document.getElementById('s-ativos').textContent=`de ${nEst} estudantes`;
+    document.getElementById('ci-ativos').textContent=`IC 95%: ${fpct(ciAtivos.lo)} – ${fpct(ciAtivos.hi)}`;
+    document.getElementById('v-retencao').textContent=fpct(pRetencao);
+    document.getElementById('ci-retencao').textContent=`IC 95%: ${fpct(ciRet.lo)} – ${fpct(ciRet.hi)}`;
+    document.getElementById('b-retencao').textContent=pRetencao>=0.3?'↑ Boa retenção':'↓ Retenção baixa';
+    document.getElementById('b-retencao').className='mc-badge '+(pRetencao>=0.3?'bg-verde':'bg-amarelo');
+    document.getElementById('v-conversao').textContent=fpct(pConversao);
+    document.getElementById('ci-conversao').textContent=`IC 95%: ${fpct(ciConv.lo)} – ${fpct(ciConv.hi)}`;
+    document.getElementById('b-conversao').textContent=pConversao>=0.2?'↑ Acima da média':'↓ Abaixo da média';
+    document.getElementById('b-conversao').className='mc-badge '+(pConversao>=0.2?'bg-verde':'bg-amarelo');
+    document.getElementById('v-abandono').textContent=fpct(pAbandono);
+    document.getElementById('ci-abandono').textContent=`IC 95%: ${fpct(ciAbandono.lo)} – ${fpct(ciAbandono.hi)}`;
+    document.getElementById('b-abandono').textContent=pAbandono<=0.3?'↓ Abandono baixo':'↑ Abandono elevado';
+    document.getElementById('b-abandono').className='mc-badge '+(pAbandono<=0.3?'bg-verde':'bg-vermelho');
+    document.getElementById('v-mcv').textContent=fmt(mCpV,1);
+    document.getElementById('s-mcv').textContent=`${nCands} cands. / ${nVagas} vagas`;
+    document.getElementById('ci-mcv').textContent=`IC 95%: ${fmt(ciMcv.lo,1)} – ${fmt(ciMcv.hi,1)}`;
+    document.getElementById('v-mcu').textContent=fmt(mCpU,1);
+    document.getElementById('s-mcu').textContent=`${nCands} cands. / ${nEst} estudantes`;
+    document.getElementById('ci-mcu').textContent=`IC 95%: ${fmt(ciMcu.lo,1)} – ${fmt(ciMcu.hi,1)}`;
+    document.getElementById('v-sucesso').textContent=fpct(pSucesso);
+    document.getElementById('ci-sucesso').textContent=`IC 95%: ${fpct(ciSucesso.lo)} – ${fpct(ciSucesso.hi)}`;
+
+    /* Top 10% */
+    const q9=pct(cpUser,90);
+    const limTop=Math.ceil(q9)||1;
+    const top=estudantes.map(u=>({nome:u.nome,n:candidaturas.filter(c=>c.uti_id===u.uti_id).length})).filter(u=>u.n>=limTop).sort((a,b)=>b.n-a.n).slice(0,8);
+    document.getElementById('top-users').innerHTML=top.length
+      ?top.map((u,i)=>`<li class="top-item"><div class="top-rank">${i+1}º</div><div class="top-info"><strong>${u.nome}</strong><span>${u.n} candidatura(s)</span></div><div class="top-val">≥ P90</div></li>`).join('')
+      :'<li style="color:#bbb;font-size:13px;padding:10px 0">Sem dados suficientes.</li>';
+
+    const nEmpresasU=utilizadores.filter(u=>u.tipo_utilizador==='EMPRESA').length;
+    const nOngsU=utilizadores.filter(u=>u.tipo_utilizador==='ORGANIZACAO').length;
+    const nAdmins=utilizadores.filter(u=>u.tipo_utilizador==='ADMIN').length;
+
+    renderLinhas(vagas,candidaturas,utilizadores);
+    renderBarras(estudantes.length,nEmpresasU,nOngsU,nAdmins);
+    renderFunil(nEst,nAtivos,nRetencao,nAceites);
+    renderVagasTop(candidaturas);
+
+  }catch(e){console.error('Erro:',e);}
+}
+
+function logout(){localStorage.clear();window.location.href='../../pages/index.html';}
+carregar();
+  </script>
+</body>
+</html>

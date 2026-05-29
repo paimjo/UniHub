@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniHub | Publicar Vaga</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+  <style>
+     body { background: #ffffff; font-family: 'Poppins', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+    .pagina-conteudo { max-width: 760px; margin: 40px auto; padding: 0 20px; }
+    .pagina-titulo { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .pagina-subtitulo { font-size: 14px; color: #888; margin-bottom: 28px; }
+    .form-card { background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .campo { display: flex; flex-direction: column; gap: 6px; }
+    .campo-full { grid-column: 1 / -1; }
+    .campo label { font-size: 12px; font-weight: 700; color: #555; text-transform: uppercase; }
+    .campo input, .campo select, .campo textarea {
+      padding: 11px 14px; border-radius: 10px; border: 1.5px solid #eee;
+      font-size: 14px; outline: none; font-family: inherit; transition: border 0.2s; background: #f9fafb;
+    }
+    .campo input:focus, .campo select:focus, .campo textarea:focus { border-color: #2563eb; background: #fff; }
+    .tipos-vaga { display: flex; gap: 10px; }
+    .tipo-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1.5px solid #eee; background: #f9fafb; font-size: 13px; font-weight: 600; cursor: pointer; color: #555; transition: all 0.2s; text-align: center; }
+    .tipo-btn.ativo { background: #eff6ff; border-color: #2563eb; color: #2563eb; }
+    .form-acoes { margin-top: 28px; display: flex; gap: 12px; }
+    .btn-submeter { flex: 1; padding: 13px; border-radius: 10px; background: #2563eb; color: #fff; border: none; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .btn-submeter:hover { background: #1e4db7; }
+    .btn-submeter:disabled { background: #93c5fd; cursor: not-allowed; }
+    .sucesso { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 16px 20px; color: #166534; font-weight: 600; margin-top: 16px; }
+  </style>
+</head>
+<body>
+   <header class="header-dashboard">
+    <a href="#" class="logo"><img src="../../imagens/unihub-logo.jpg" alt="UniHub Logo"></a>
+    <nav class="menu-dashboard" style="margin-left: auto; margin-right: 60px; align-self: center;">
+      <a href="candidatos.html">Candidaturas</a>
+    </nav>
+    <div class="icones-dashboard">
+      <a href="perfil.html"><i class="bx bx-user"></i></a>
+      <a href="chat.html"><i class="bx bx-message"></i></a>
+      <a href="notificacoes.html"><i class="bxf bx-bell"></i></a>
+      <a href="publicar-vaga.html"><i class="bx bx-plus"></i></a>
+    </div>
+  </header>
+
+  <div class="pagina-conteudo">
+    <h1 class="pagina-titulo">Publicar Vaga</h1>
+    <p class="pagina-subtitulo">Preenche os detalhes da vaga que queres publicar.</p>
+
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="campo campo-full">
+          <label>Tipo de Vaga</label>
+          <div class="tipos-vaga">
+            <div class="tipo-btn" onclick="selecionarTipo('VOLUNTARIADO', this)"><i class="bx bx-heart"></i> Voluntariado</div>
+          </div>
+          <input type="hidden" id="tipo" value="ESTAGIO">
+        </div>
+
+        <div class="campo campo-full">
+          <label>Título da Vaga</label>
+          <input type="text" id="titulo" placeholder="Ex: Programador Frontend Júnior">
+        </div>
+
+        <div class="campo campo-full">
+          <label>Descrição</label>
+          <textarea id="descricao" rows="4" placeholder="Descreve as funções, requisitos e benefícios..."></textarea>
+        </div>
+
+        <div class="campo">
+          <label>Regime</label>
+          <select id="regime">
+            <option value="">Selecionar</option>
+            <option value="PRESENCIAL">Presencial</option>
+            <option value="REMOTO">Remoto</option>
+            <option value="HIBRIDO">Híbrido</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Remuneração</label>
+          <input type="text" id="remuneracao" placeholder="Ex: 800€/mês">
+        </div>
+
+        <div class="campo">
+          <label>Cidade</label>
+          <input type="text" id="cidade" placeholder="Ex: Lisboa">
+        </div>
+
+        <div class="campo">
+          <label>Nível de Exigência</label>
+          <input type="text" id="nivel_exigencia" placeholder="Ex: Júnior, Sénior...">
+        </div>
+
+        <div class="campo campo-full">
+          <label>Competências</label>
+          <input type="text" id="competencias" placeholder="Ex: JavaScript, Python, comunicação...">
+        </div>
+      </div>
+
+      <div class="form-acoes">
+        <button class="btn-submeter" id="btn-submeter" onclick="publicar()">Publicar Vaga</button>
+      </div>
+      <div class="sucesso" id="sucesso">✓ Vaga publicada com sucesso!</div>
+    </div>
+  </div>
+ <footer>
+    <div class="footer-grid">
+        <div>
+           <div class="footer-logo"><span class="uni">Uni</span><span class="hub">Hub</span></div>
+            <p class="footer-desc">Conectando estudantes ao futuro.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Contacto</h4>
+            <p><i class="bx bx-envelope"></i> unihub@email.com</p>
+            <p><i class="bx bx-map-pin"></i> +351 900 000 000</p>
+            <p><i class="bx bx-map-pin"></i> Portugal</p>
+        </div>
+        <div class="footer-col">
+            <h4>Links</h4>
+            <a href="#">Sobre</a>
+            <a href="#">Privacidade</a>
+            <a href="#">Termos</a>
+        </div>
+    </div>
+    <div class="footer-bottom">© 2026 UniHub. Todos os direitos reservados.</div>
+  </footer>
+
+  <script>
+    const BASE = 'http://localhost:3000/api';
+    const token = localStorage.getItem('token');
+
+    function selecionarTipo(tipo, el) {
+      document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('ativo'));
+      el.classList.add('ativo');
+      document.getElementById('tipo').value = tipo;
+    }
+
+    async function publicar() {
+      const btn = document.getElementById('btn-submeter');
+      btn.textContent = 'A publicar...';
+      btn.disabled = true;
+
+      const body = {
+        tipo: document.getElementById('tipo').value,
+        titulo: document.getElementById('titulo').value,
+        descricao: document.getElementById('descricao').value,
+        regime: document.getElementById('regime').value,
+        remuneracao: document.getElementById('remuneracao').value,
+        cidade: document.getElementById('cidade').value,
+        nivel_exigencia: document.getElementById('nivel_exigencia').value,
+        competencias: document.getElementById('competencias').value,
+      };
+
+      if (!body.titulo || !body.descricao) {
+        alert('Preenche pelo menos o título e a descrição.');
+        btn.textContent = 'Publicar Vaga';
+        btn.disabled = false;
+        return;
+      }
+
+      try {
+        const res = await fetch(`${BASE}/vaga`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify(body)
+        });
+        const dados = await res.json();
+        if (!res.ok) { alert('Erro: ' + dados.erro); btn.textContent = 'Publicar Vaga'; btn.disabled = false; return; }
+        document.getElementById('sucesso').style.display = 'block';
+        btn.textContent = 'Publicar Vaga';
+        btn.disabled = false;
+      } catch {
+        alert('Erro ao ligar ao servidor.');
+        btn.textContent = 'Publicar Vaga';
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniHub | Notificações</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.boxicons.com/3.0.8/fonts/filled/boxicons-filled.min.css" rel="stylesheet">
+  <style>
+    body { background: #ffffff; }
+    .pagina-conteudo { max-width: 720px; margin: 40px auto; padding: 0 20px; }
+    .pagina-titulo { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .pagina-subtitulo { font-size: 14px; color: #888; margin-bottom: 24px; }
+    .filtros-notif { display: flex; gap: 10px; margin-bottom: 24px; align-items: center; }
+    .filtro-btn { padding: 8px 20px; border-radius: 20px; border: 1.5px solid #ddd; background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; color: #555; transition: all 0.2s; }
+    .filtro-btn.ativo, .filtro-btn:hover { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .marcar-todas { margin-left: auto; font-size: 13px; color: #2563eb; background: none; border: none; cursor: pointer; font-weight: 600; }
+    .lista-notif { display: flex; flex-direction: column; gap: 12px; }
+    .notif-item { background: #fff; border-radius: 12px; padding: 18px 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); cursor: pointer; transition: all 0.2s; border-left: 4px solid transparent; }
+    .notif-item:hover { transform: translateX(4px); }
+    .notif-item.nao-lida { border-left-color: #2563eb; background: #f0f5ff; }
+    .notif-icone { width: 42px; height: 42px; border-radius: 50%; background: #e8f0fe; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #2563eb; flex-shrink: 0; }
+    .notif-item.nao-lida .notif-icone { background: #2563eb; color: #fff; }
+    .notif-texto { flex: 1; }
+    .notif-texto p { font-size: 14px; color: #333; font-weight: 500; margin-bottom: 4px; }
+    .notif-texto span { font-size: 12px; color: #aaa; }
+    .notif-ponto { width: 8px; height: 8px; border-radius: 50%; background: #2563eb; flex-shrink: 0; }
+    .notif-item.lida .notif-ponto { visibility: hidden; }
+    .vazio { text-align: center; padding: 60px 0; color: #bbb; font-size: 15px; }
+    .loading { text-align: center; padding: 40px; color: #aaa; }
+  </style>
+</head>
+<body>
+  <header class="header-dashboard">
+    <a href="home-estudante.html" class="logo"><img src="../../imagens/unihub-logo.jpg" alt="UniHub Logo"></a>
+
+    <nav class="menu-dashboard">
+      <a href="estagio.html">Estágio</a><a href="empregabilidade.html">Empregabilidade</a><a href="voluntariado.html">Voluntariado</a>
+    </nav>
+    <div class="icones-dashboard">
+      <a href="perfil.html"><i class="bx bx-user"></i></a>
+      <a href="chat.html"><i class="bx bx-message"></i></a>
+      <a href="notificacoes.html"><i class="bxf bx-bell"></i></a>
+      <a href="favoritos.html"><i class="bx bx-bookmark"></i></a>
+    </div>
+  </header>
+
+  <div class="pagina-conteudo">
+    <h1 class="pagina-titulo">Notificações</h1>
+    <p class="pagina-subtitulo">Mantém-te a par de tudo o que acontece.</p>
+
+    <div class="filtros-notif">
+      <button class="filtro-btn ativo" onclick="filtrar('todas', this)">Todas</button>
+      <button class="filtro-btn" onclick="filtrar('nao-lida', this)">Não lidas</button>
+      <button class="marcar-todas" onclick="marcarTodas()">Marcar todas como lidas</button>
+    </div>
+
+    <div class="lista-notif" id="lista">
+      <p class="loading">A carregar notificações...</p>
+    </div>
+  </div>
+
+ <footer>
+    <div class="footer-grid">
+        <div>
+           <div class="footer-logo"><span class="uni">Uni</span><span class="hub">Hub</span></div>
+            <p class="footer-desc">Conectando estudantes ao futuro.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Contacto</h4>
+            <p><i class="bx bx-envelope"></i> unihub@email.com</p>
+            <p><i class="bx bx-map-pin"></i> +351 900 000 000</p>
+            <p><i class="bx bx-map-pin"></i> Portugal</p>
+        </div>
+        <div class="footer-col">
+            <h4>Links</h4>
+            <a href="#">Sobre</a>
+            <a href="#">Privacidade</a>
+            <a href="#">Termos</a>
+        </div>
+    </div>
+    <div class="footer-bottom">© 2026 UniHub. Todos os direitos reservados.</div>
+</footer>
+
+  <script>
+    const BASE = 'http://localhost:3000/api';
+    const token = localStorage.getItem('token');
+    let todasNotifs = [];
+
+    const icones = {
+      MENSAGEM: 'bx bx-message',
+      CANDIDATURA: 'bx bx-file',
+      GERAL: 'bx bx-bell'
+    };
+
+    function tempoRelativo(data) {
+      const diff = (Date.now() - new Date(data)) / 1000;
+      if (diff < 60) return 'Agora mesmo';
+      if (diff < 3600) return `Há ${Math.floor(diff/60)} min`;
+      if (diff < 86400) return `Há ${Math.floor(diff/3600)}h`;
+      return `Há ${Math.floor(diff/86400)} dias`;
+    }
+
+    function renderizar(lista) {
+      const el = document.getElementById('lista');
+      if (!lista.length) { el.innerHTML = '<p class="vazio">Sem notificações.</p>'; return; }
+      el.innerHTML = lista.map(n => `
+        <div class="notif-item ${n.lida ? 'lida' : 'nao-lida'}" data-id="${n.notif_id}" data-estado="${n.lida ? 'lida' : 'nao-lida'}" onclick="marcarLida(this, ${n.notif_id})">
+          <div class="notif-icone"><i class="${icones[n.tipo] || icones.GERAL}"></i></div>
+          <div class="notif-texto">
+            <p>${n.mensagem}</p>
+            <span>${tempoRelativo(n.criado_em)}</span>
+          </div>
+          <div class="notif-ponto"></div>
+        </div>`).join('');
+    }
+
+    async function carregar() {
+      try {
+        const res = await fetch(`${BASE}/notificacao`, { headers: { Authorization: 'Bearer ' + token } });
+        todasNotifs = await res.json();
+        renderizar(todasNotifs);
+      } catch { document.getElementById('lista').innerHTML = '<p class="vazio">Erro ao carregar notificações.</p>'; }
+    }
+
+    function filtrar(tipo, btn) {
+      document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
+      btn.classList.add('ativo');
+      renderizar(tipo === 'todas' ? todasNotifs : todasNotifs.filter(n => !n.lida));
+    }
+
+    async function marcarLida(el, id) {
+      if (el.classList.contains('lida')) return;
+      await fetch(`${BASE}/notificacao/${id}/lida`, { method: 'PUT', headers: { Authorization: 'Bearer ' + token } });
+      el.classList.replace('nao-lida', 'lida');
+      el.dataset.estado = 'lida';
+      const n = todasNotifs.find(n => n.notif_id === id);
+      if (n) n.lida = 1;
+    }
+
+    async function marcarTodas() {
+      await fetch(`${BASE}/notificacao/lidas`, { method: 'PUT', headers: { Authorization: 'Bearer ' + token } });
+      todasNotifs.forEach(n => n.lida = 1);
+      renderizar(todasNotifs);
+    }
+
+    carregar();
+  </script>
+</body>
+</html>
