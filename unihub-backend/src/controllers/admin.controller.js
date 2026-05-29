@@ -126,7 +126,28 @@ exports.estatisticas = async (req, res) => {
         res.status(500).json({ erro: err.message });
     }
 };
-
+// GET /api/admin/candidaturas — listar todas as candidaturas (para o dashboard)
+exports.listarCandidaturas = async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            `SELECT 
+                c.cand_id,
+                c.vaga_id,
+                c.uti_id,
+                c.estado,
+                c.data_candidatura,
+                v.titulo,
+                e.nome_empresa
+             FROM candidatura c
+             LEFT JOIN vaga v ON c.vaga_id = v.vaga_id
+             LEFT JOIN empresa e ON v.emp_id = e.emp_id
+             ORDER BY c.data_candidatura DESC`
+        );
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ erro: err.message });
+    }
+};
 module.exports = {
     verificarAdmin,
     listarUtilizadores: exports.listarUtilizadores,
@@ -135,5 +156,6 @@ module.exports = {
     listarOrganizacoes: exports.listarOrganizacoes,
     listarVagas: exports.listarVagas,
     eliminarVaga: exports.eliminarVaga,
-    estatisticas: exports.estatisticas
+    estatisticas: exports.estatisticas,
+    listarCandidaturas: exports.listarCandidaturas
 };

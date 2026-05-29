@@ -1,12 +1,17 @@
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 
-// GET /api/utilizador/perfil — ver dados do utilizador logado
+// GET /api/utilizador/perfil
 exports.verPerfil = async (req, res) => {
     const uti_id = req.utilizador.id;
     try {
         const [rows] = await pool.query(
-            'SELECT uti_id, nome, email, tipo_email, tipo_utilizador, estado, verificado, criado_em FROM utilizador WHERE uti_id = ?',
+            `SELECT u.uti_id, u.nome, u.email, u.tipo_email, u.tipo_utilizador, u.estado, u.verificado, u.criado_em,
+            p.foto_url, p.cv_url, p.curso, p.instituicao_ensino, p.morada, p.contacto,
+            p.data_nascimento, p.nacionalidade, p.descricao
+            FROM utilizador u
+            LEFT JOIN perfil p ON u.uti_id = p.uti_id
+            WHERE u.uti_id = ?`,
             [uti_id]
         );
         if (rows.length === 0) {
@@ -17,7 +22,6 @@ exports.verPerfil = async (req, res) => {
         res.status(500).json({ erro: err.message });
     }
 };
-
 // PUT /api/utilizador/perfil — editar nome e email
 exports.editarPerfil = async (req, res) => {
     const uti_id = req.utilizador.id;

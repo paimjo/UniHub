@@ -1,3 +1,4 @@
+
 const router = require('express').Router();
 const ctrl = require('../controllers/admin.controller');
 const auth = require('../middleware/auth.middleware');
@@ -10,5 +11,6 @@ router.get('/organizacoes',              auth, verificarAdmin, ctrl.listarOrgani
 router.get('/vagas',                     auth, verificarAdmin, ctrl.listarVagas);
 router.delete('/vagas/:id',              auth, verificarAdmin, ctrl.eliminarVaga);
 router.get('/estatisticas',              auth, verificarAdmin, ctrl.estatisticas);
+router.get('/candidaturas',              auth, verificarAdmin, ctrl.listarCandidaturas);
 
 module.exports = router;

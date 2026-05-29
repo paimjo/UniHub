@@ -1,6 +1,6 @@
 const pool = require('../config/db');
 
-// POST /api/candidatura — estudante candidata-se a uma vaga
+// POST /api/candidatura
 exports.candidatar = async (req, res) => {
     const uti_id = req.utilizador.id;
     const tipo = req.utilizador.tipo;
