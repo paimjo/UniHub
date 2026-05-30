@@ -98,14 +98,16 @@ Desenvolver uma plataforma web que centralize oportunidades de voluntariado acad
 - Criar um histórico de experiências e competências;  
 - Implementar certificação digital de participação;  
 - Contribuir para a diferenciação no currículo académico e profissional.
-
  --- 
  ### Motivação 
+ 
 Os estudantes demonstraram forte interesse em adquirir experiência prática que complemente a formação académica. Procuram oportunidades que permitam aplicar conhecimentos, desenvolver competências e fortalecer o currículo. Valorizam processos simples, rápidos e acessíveis, bem como experiências de voluntariado académico que funcionem como porta de entrada para estágios e emprego. Estas motivações reforçam a necessidade de uma plataforma centralizada como o UniHub.
+
  ---
-## novação e Diferenciação
+## Inovação e Diferenciação
 
 O UniHub distingue‑se das plataformas existentes por combinar, de forma equilibrada, empregabilidade, impacto social e foco académico. Enquanto plataformas como LinkedIn, Handshake ou JobTeaser se concentram sobretudo em emprego e estágios, o UniHub dá destaque ao voluntariado académico como ponto de partida para o desenvolvimento profissional. A plataforma promove uma ligação direta entre estudantes, empresas, ONGs e indivíduos que necessitam de apoio técnico, criando um ecossistema colaborativo que beneficia toda a comunidade. A certificação digital das experiências, o percurso progressivo e a simplicidade da interface reforçam a diferenciação do projeto, tornando-o uma solução inovadora, acessível e adaptada às necessidades reais dos estudantes.
+
  --- 
  ### Conclusão 
  
